@@ -50,8 +50,9 @@ class AuthController extends Controller {
         $email = $request["email"];
 
         $user = User::where('email', $email)->with('role')->first();
-      //return  $temp = User::where('id',$user['id'])->update(['remember_token'=> $token]);
-      $user['remember_token']= $token;
+        //return  $temp = User::where('id',$user['id'])->update(['remember_token'=> $token]);
+        
+        $user['remember_token']= $token;
         $user->save();
         // return $user;
         if ($user) {

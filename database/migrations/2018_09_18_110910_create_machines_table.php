@@ -18,10 +18,6 @@ class CreateMachinesTable extends Migration
             $table->string('name');
             $table->string('email_ids');
             $table->string('status');
-            $table->bigInteger('port_one_reason')->unsigned();
-            $table->foreign('port_one_reason')->references('id')->on('status__reasons')->onUpdate('cascade')->onDelete('cascade');
-            $table->bigInteger('port_two_reason')->unsigned();
-            $table->foreign('port_two_reason')->references('id')->on('status__reasons')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

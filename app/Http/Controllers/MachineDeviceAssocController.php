@@ -4,82 +4,91 @@ namespace App\Http\Controllers;
 
 use App\MachineDeviceAssoc;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
+use App\Device;
 
 class MachineDeviceAssocController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
+  public function assignDeviceToMachine() {
+    try{
+      DB::beginTransaction();
+      $posted_data = Input::all();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+      $object = new MachineDeviceAssoc();
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+      $find= Device::where('id',$posted_data['device_id'])->first();
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\MachineDeviceAssoc  $machineDeviceAssoc
-     * @return \Illuminate\Http\Response
-     */
-    public function show(MachineDeviceAssoc $machineDeviceAssoc)
-    {
-        //
+      if ($object->validate($posted_data)) {
+        $posted_data['status']='ENGAGE';
+        $model = MachineDeviceAssoc::create($posted_data);
+        if ($model){
+          $device = Device::where('id', $posted_data['device_id'])->where('status','<>', 'ENGAGE')
+            ->update(['status' =>'ENGAGE']);
+          if($device){
+            if($find=='' || $find['status']=='ENGAGE'){
+              $updateDevice = Device::where('id',  $find['device_id'])
+                  ->update(['status' =>'NOT ENGAGE']);
+            }
+            DB::commit();
+            return response()->json(['status_code' => 200, 'message' => 'Asssign successfully', 'data' => $model]);
+          }else {
+            return response()->json(['status_code' => 404, 'message' => 'Device already engage.']);
+          }
+        }else{
+          return response()->json(['status_code' => 404, 'message' => 'Unable to assign']);
+        }
+      } else {
+        throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to assign.', $object->errors());
+      }
     }
+    catch(\Exception $e){
+      DB::rollback();
+      throw $e;
+    }
+  }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\MachineDeviceAssoc  $machineDeviceAssoc
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(MachineDeviceAssoc $machineDeviceAssoc)
-    {
-        //
+  public function getMachineIdByDeviceId($id) {
+    $deviceId=Device::where("id",$id)->where('status','=', 'ENGAGE')->pluck('id')->first();
+    if($deviceId){
+      $machine['machine_id'] = MachineDeviceAssoc::where("device_id",$deviceId)->latest()->pluck('machine_id')->first();
+      if($machine['machine_id']!=null){
+        return response()->json(['status_code' => 200, 'message' => 'Machine info', 'data' => $machine]);
+      }else{
+        return response()->json(['status_code' => 404, 'message' => 'Record not found']);
+      }
+    }else{
+      return response()->json(['status_code' => 404, 'message' => 'Record not found']);
     }
+  }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\MachineDeviceAssoc  $machineDeviceAssoc
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, MachineDeviceAssoc $machineDeviceAssoc)
-    {
-        //
+  public function getDeviceIdByMachineId($id) {
+    $device = MachineDeviceAssoc::where("machine_id",$id)->where('status','=', 'ENGAGE')->latest()->first();
+    if ($device){
+      $deviceId=Device::where("id",$device['device_id'])->where('status','=', 'ENGAGE')->pluck('id')->first();
+      if($deviceId){
+        return response()->json(['status_code' => 200, 'message' => 'Device info', 'data' => $device]);
+      }else{
+        return response()->json(['status_code' => 404, 'message' => 'Record not found']);
+      }
+      
+    }else{
+      return response()->json(['status_code' => 404, 'message' => 'Record not found']);
     }
+  }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\MachineDeviceAssoc  $machineDeviceAssoc
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(MachineDeviceAssoc $machineDeviceAssoc)
-    {
-        //
+  public function resetDeviceById($id) {
+    $device = Device::where('id',  $id)->update(['status' =>'NOT ENGAGE']);
+    $data = MachineDeviceAssoc::where("device_id",$id)->latest()->first();
+    if ($device){
+      $posted_data['machine_id']=$data['machine_id'];
+      $posted_data['device_id']=$data['device_id'];
+      $posted_data['status']='NOT ENGAGE';
+
+      $model = MachineDeviceAssoc::create($posted_data);
+      return response()->json(['status_code' => 200, 'message' => 'Device reset successfully', 'data' => $device]);
+    }else{
+      return response()->json(['status_code' => 404, 'message' => 'Device unable to reset.']);
     }
+  }
 }

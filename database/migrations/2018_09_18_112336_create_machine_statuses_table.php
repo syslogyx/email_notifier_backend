@@ -15,9 +15,10 @@ class CreateMachineStatusesTable extends Migration
     {
         Schema::create('machine_statuses', function (Blueprint $table) {
             $table->increments('id');
-            $table->bigInteger('machine_id')->unsigned();
-            $table->foreign('machine_id')->references('id')->on('machines')->onUpdate('cascade')->onDelete('cascade');
+            $table->bigInteger('device_id')->unsigned();
+            $table->foreign('device_id')->references('id')->on('devices')->onUpdate('cascade')->onDelete('cascade');
             $table->string('status');
+            $table->string('port');
             $table->timestamps();
         });
     }

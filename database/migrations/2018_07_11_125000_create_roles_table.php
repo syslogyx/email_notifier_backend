@@ -20,18 +20,20 @@ class CreateRolesTable extends Migration
             $table->string('name');
             $table->timestamps();
         });
+
         $data = array(
             array(
-            "name" => "Admin"
+                "name" => "Admin"
             ),
             array(
-            "name" => "Operator"
-          ),
-          array(
-            "name" => "Sticker"
-          )
+                "name" => "Operator"
+            ),
+            array(
+                "name" => "Sticker"
+            )
         );
-          Role::insert($data);
+        
+        Role::insert($data);
     }
 
     /**

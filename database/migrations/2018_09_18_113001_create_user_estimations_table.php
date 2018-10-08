@@ -17,7 +17,8 @@ class CreateUserEstimationsTable extends Migration
             $table->increments('id');
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->string('machine_status_id');
+            $table->bigInteger('machine_status_id')->unsigned();
+            $table->foreign('machine_status_id')->references('id')->on('machine_statuses')->onUpdate('cascade')->onDelete('cascade');
             $table->bigInteger('reason')->unsigned();
             $table->foreign('reason')->references('id')->on('status__reasons')->onUpdate('cascade')->onDelete('cascade');
             $table->string('msg');

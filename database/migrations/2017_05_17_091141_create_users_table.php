@@ -16,6 +16,7 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
+            $table->string('mobile');
             $table->string('email')->nullable()->unique();
             $table->string('password')->nullable();
             $table->integer('role_id');
@@ -25,17 +26,18 @@ class CreateUsersTable extends Migration
 
         $data = array(
             array(
-            "name" => "Admin",
-            "email" => "admin@syslogyx.com",
-            "password" => Hash::make('admin123'),
-            "role_id" => 1,
-
+                "name" => "Admin",
+                "mobile" => "9876543210",
+                "email" => "admin@syslogyx.com",
+                "password" => Hash::make('admin123'),
+                "role_id" => 1,
             ),
             array(
-            "name" => "Operator",
-            "email" => "operator@syslogyx.com",
-            "password" => Hash::make('operator123'),
-            "role_id" => 2,
+                "name" => "Operator",
+                "mobile" => "9876543210",
+                "email" => "operator@syslogyx.com",
+                "password" => Hash::make('operator123'),
+                "role_id" => 2,
             )
         );
 

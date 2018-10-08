@@ -19,7 +19,7 @@ class CreateMachineDeviceAssocsTable extends Migration
             $table->foreign('device_id')->references('id')->on('devices')->onUpdate('cascade')->onDelete('cascade');
             $table->bigInteger('machine_id')->unsigned();
             $table->foreign('machine_id')->references('id')->on('machines')->onUpdate('cascade')->onDelete('cascade');
-
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

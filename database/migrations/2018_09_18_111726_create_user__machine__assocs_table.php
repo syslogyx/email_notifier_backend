@@ -19,6 +19,7 @@ class CreateUserMachineAssocsTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->bigInteger('machine_id')->unsigned();
             $table->foreign('machine_id')->references('id')->on('machines')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

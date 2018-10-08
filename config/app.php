@@ -185,9 +185,6 @@ return [
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
 
         Zizaco\Entrust\EntrustServiceProvider::class,
-
-Barryvdh\DomPDF\ServiceProvider::class,
- Maatwebsite\Excel\ExcelServiceProvider::class,
  
     ],
 
@@ -242,8 +239,6 @@ Barryvdh\DomPDF\ServiceProvider::class,
 
         'Entrust'   => Zizaco\Entrust\EntrustFacade::class,
         'Mailgun' => Bogardo\Mailgun\Facades\Mailgun::class,
-        'PDF' => Barryvdh\DomPDF\Facade::class,
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
 
     ],
 
