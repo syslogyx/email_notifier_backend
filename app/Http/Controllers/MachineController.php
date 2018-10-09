@@ -134,7 +134,7 @@ class MachineController extends Controller
 
     public function getMachineById($id)
     {
-        $machine = Machine::where("id",$id)->first();
+        $machine = Machine::with("devices")->where("id",$id)->first();
         if ($machine){
             return response()->json(['status_code' => 200, 'message' => 'Machine info', 'data' => $machine]);
 

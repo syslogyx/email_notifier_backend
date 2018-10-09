@@ -19,7 +19,7 @@ class User extends Authenticatable {
      * @var array
      */
     protected $fillable = [
-        'email', 'password',"name","role_id"
+        'email', 'password',"name","role_id","mobile"
     ];
     private $rules = array(
         'name' => 'required',

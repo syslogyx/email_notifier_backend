@@ -31,4 +31,8 @@ class Machine extends Model
 	public function errors() {
 	    return $this->errors;
 	}
+
+	public function devices() {
+        return $this->belongsToMany('App\Device', 'machine_device_assocs','machine_id','device_id')->where('machine_device_assocs.status','ENGAGE')->latest();
+    }
 }

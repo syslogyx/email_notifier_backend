@@ -34,4 +34,8 @@ class Status_Reason extends Model
   public function errors() {
       return $this->errors;
   }
+
+  // public function device() {
+  //       return $this->hasOne('App\Device');
+  // }
 }

@@ -137,7 +137,7 @@ class DeviceController extends BaseController {
   }
 
   public function getDeviceById($id) {
-      $device = Device::where("id",$id)->first();
+      $device = Device::with('status_reason_port_one_0','status_reason_port_one_1','status_reason_port_two_0','status_reason_port_two_1')->where("id",$id)->first();
       if ($device){
         return response()->json(['status_code' => 200, 'message' => 'Device info', 'data' => $device]);
 
