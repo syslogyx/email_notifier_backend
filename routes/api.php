@@ -60,6 +60,7 @@ $api->version("v1", function($api) {
     $api->get("get/machineIdByDeviceId/{id}", "App\Http\Controllers\MachineDeviceAssocController@getMachineIdByDeviceId");
     $api->get("get/deviceIdByMachineId/{id}", "App\Http\Controllers\MachineDeviceAssocController@getDeviceIdByMachineId");
     $api->get("reset/deviceById/{id}", "App\Http\Controllers\MachineDeviceAssocController@resetDeviceById");
+    $api->get("reset/devicesByMachineId/{id}", "App\Http\Controllers\MachineDeviceAssocController@resetDevicesByMachineId");
 
     // user and machine assoc api
     $api->post("assign/userToMachine", "App\Http\Controllers\UserMachineAssocController@assignUserToMachine");

@@ -79,16 +79,33 @@ class MachineDeviceAssocController extends Controller
 
   public function resetDeviceById($id) {
     $device = Device::where('id',  $id)->update(['status' =>'NOT ENGAGE']);
+    $device = Device::where('id',  $id)->update(['machine_id' =>null]);
+     // $device = Device::where('id',  $device_id)->update(['machine_id' =>null]);
     $data = MachineDeviceAssoc::where("device_id",$id)->latest()->first();
     if ($device){
+      
       $posted_data['machine_id']=$data['machine_id'];
       $posted_data['device_id']=$data['device_id'];
       $posted_data['status']='NOT ENGAGE';
-
+      
+      $device = Device::where('id',  $id)->get();
       $model = MachineDeviceAssoc::create($posted_data);
       return response()->json(['status_code' => 200, 'message' => 'Device reset successfully', 'data' => $device]);
     }else{
       return response()->json(['status_code' => 404, 'message' => 'Device unable to reset.']);
     }
   }
+
+  public function resetDevicesByMachineId($id){
+      $devices = Device::where('machine_id',$id)->where('status','ENGAGE')->get();
+      if($devices && count($devices) > 0){
+          foreach ($devices as $device) {
+            $this->resetDeviceById($device['id']);
+          }
+          return response()->json(['status_code' => 200, 'message' => 'Device reset successfully']);
+      }else{
+          return response()->json(['status_code' => 404, 'message' => 'Device unable to reset.']);
+      }
+  }
+
 }

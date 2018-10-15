@@ -28,4 +28,8 @@ class User_Machine_Assoc extends Model
     public function errors() {
         return $this->errors;
     }
+
+    public function machine() {
+      return $this->belongsTo('App\Machine' , 'machine_id');
+    }
 }

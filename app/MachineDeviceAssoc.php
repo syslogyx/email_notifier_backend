@@ -29,4 +29,8 @@ class MachineDeviceAssoc extends Model
         return $this->errors;
     }
 
+    public function device() {
+      return $this->belongsTo('App\Device' , 'device_id');
+    }
+
 }

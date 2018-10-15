@@ -28,12 +28,24 @@ class MachineController extends Controller
 
     public function getAllMachines()
     {
-        $machine = Machine::get();
-        if ($machine){
+        $machine = Machine::get(); 
+
+        if($machine && count($machine) > 0){
+            foreach ($machine as $machine_entry ) {
+                $machine_entry->device_data = $this->getDevices($machine_entry->id);
+            }
+        }
+
+         if ($machine){
           return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);
         }else{
           return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
         }
+    }
+
+    public function getDevices($machineID){
+        $devices = Device::where("machine_id",$machineID)->where('status','=', 'ENGAGE')->get();
+        return $devices;
     }
 
     /**
@@ -91,50 +103,70 @@ class MachineController extends Controller
     public function updateMachine()
     {
       try{
-        DB::beginTransaction();
-        $posted_data = Input::all();
+          DB::beginTransaction();
+          $posted_data = Input::all();
 
-        $object = new Machine();
-        $oldDeviceList = $posted_data["old_device_list"];
-        unset($posted_data["old_device_list"]);
-        $newDeviceList = $posted_data["new_device_list"];
-        unset($posted_data["new_device_list"]);
+          $object = Machine::find($posted_data['id']);
 
-        if ($object->validate($posted_data)) {
-            $machine = Machine::where('id',$posted_data['id'])->update($posted_data);
-            if($machine){
-              foreach ($oldDeviceList as $key => $value) {
-                $this->resetDeviceById($value);
+          $oldDeviceList = $posted_data["old_device_list"];
+          
+          $newDeviceList = $posted_data["new_device_list"];
+
+          if(isset($oldDeviceList) ){
+              $oldDevice=array_diff($oldDeviceList, $newDeviceList);
+              $newDevice=array_diff($newDeviceList,$oldDeviceList);
+          }else{
+              $oldDevice=[];
+              $newDevice=$newDeviceList;
+          }
+       
+          unset($posted_data["old_device_list"]);
+          unset($posted_data["new_device_list"]);
+
+          if ($object->validate($posted_data)) {
+              $machine = Machine::where('id',$posted_data['id'])->update($posted_data);
+              if($machine){
+                  if(isset($oldDevice)){
+                      foreach ($oldDevice as $key => $value) {
+                        $this->resetDeviceById($value);
+                      }
+                  }
+                
+                  foreach ($newDevice as $key => $value) {
+                      $data = [];
+                      $data["machine_id"] = $posted_data['id'];
+                      $data["device_id"] = $value;
+
+                      $result = $this->assignDeviceToMachine($data);
+                      if(!isset($result->id)){
+                          return $result;
+                      }
+                  }
+                
+                  $res = Machine::find($posted_data['id']);
+                  DB::commit();   
+                  return response()->json(['status_code' => 200, 'message' => 'Machine updated successfully', 'data' => $res]);
+              }else{
+                  return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
               }
-              foreach ($newDeviceList as $key => $value) {
-                $data = [];
-                $data["machine_id"] = $posted_data['id'];
-                $data["device_id"] = $value;
-                $result = $this->assignDeviceToMachine($data);
-                if(!isset($result->id)){
-                  return $result;
-                }
-              }
-              
-              $res = Machine::find($posted_data['id']);
-              DB::commit();   
-              return response()->json(['status_code' => 200, 'message' => 'Machine updated successfully', 'data' => $res]);
-            }else{
-              return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
-            }
-        } else {
-          throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to update machine.', $object->errors());
-        }
+          } else {
+            throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to update machine.', $object->errors());
+          }
       }
       catch(\Exception $e){
-        DB::rollback();
-        throw $e;
+          DB::rollback();
+          throw $e;
       }
     }
 
     public function getMachineById($id)
     {
-        $machine = Machine::with("devices")->where("id",$id)->first();
+        $machine = Machine::where("id",$id)->first();
+
+        // $machine["device_data"] = MachineDeviceAssoc::with('device')->where("machine_id",$id)->where('status','=', 'ENGAGE')->get();
+
+        $machine["device_data"] = Device::where("machine_id",$id)->where('status','=', 'ENGAGE')->get();
+
         if ($machine){
             return response()->json(['status_code' => 200, 'message' => 'Machine info', 'data' => $machine]);
 
@@ -144,55 +176,61 @@ class MachineController extends Controller
     }
 
     public function assignDeviceToMachine($data) {
+
       try{
-        DB::beginTransaction();
-        $posted_data = $data;
 
-        $object = new MachineDeviceAssoc();
+          DB::beginTransaction();
+          $posted_data = $data;
+         
+          $object = new MachineDeviceAssoc();
 
-        $find= Device::where('id',$posted_data['device_id'])->first();
+          $find= Device::where('id',$posted_data['device_id'])->first();
 
-        if ($object->validate($posted_data)) {
-          $posted_data['status']='ENGAGE';
-          $model = MachineDeviceAssoc::create($posted_data);
-          if ($model){
-            $device = Device::where('id', $posted_data['device_id'])->where('status','<>', 'ENGAGE')
-              ->update(['status' =>'ENGAGE']);
-            if($device){
-              if($find=='' || $find['status']=='ENGAGE'){
-                $updateDevice = Device::where('id',  $find['device_id'])
-                    ->update(['status' =>'NOT ENGAGE']);
+          if ($object->validate($posted_data)) {
+              $posted_data['status']='ENGAGE';
+              $model = MachineDeviceAssoc::create($posted_data);
+              if ($model){
+                  $device = Device::where('id', $posted_data['device_id'])->where('status','<>', 'ENGAGE')->update(['status' =>'ENGAGE']);
+
+                  $device = Device::where('id', $posted_data['device_id'])
+                  ->update(['machine_id' =>$posted_data['machine_id']]);
+
+                  if($device){
+                      if($find=='' || $find['status']=='ENGAGE'){
+                        $updateDevice = Device::where('id',  $find['device_id'])->update(['status' =>'NOT ENGAGE']);
+                      }
+                      DB::commit();
+                      return $model;
+                  }else {
+                      return response()->json(['status_code' => 404, 'message' => 'Device already engage.']);
+                  }
+              }else{
+                  return response()->json(['status_code' => 404, 'message' => 'Unable to assign']);
               }
-              DB::commit();
-              return $model;
-            }else {
-              return response()->json(['status_code' => 404, 'message' => 'Device already engage.']);
-            }
-          }else{
-            return response()->json(['status_code' => 404, 'message' => 'Unable to assign']);
+          } else {
+              throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to assign.', $object->errors());
           }
-        } else {
-          throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to assign.', $object->errors());
-        }
       }
       catch(\Exception $e){
-        DB::rollback();
-        throw $e;
+          DB::rollback();
+          throw $e;
       }
     }
 
     public function resetDeviceById($device_id) {
-      $device = Device::where('id',  $device_id)->update(['status' =>'NOT ENGAGE']);
-      $data = MachineDeviceAssoc::where("device_id",$device_id)->latest()->first();
-      if ($device){
-        $posted_data['machine_id']=$data['machine_id'];
-        $posted_data['device_id']=$data['device_id'];
-        $posted_data['status']='NOT ENGAGE';
 
-        $model = MachineDeviceAssoc::create($posted_data);
-        return response()->json(['status_code' => 200, 'message' => 'Device reset successfully', 'data' => $device]);
-      }else{
-        return response()->json(['status_code' => 404, 'message' => 'Device unable to reset.']);
-      }
+        $device = Device::where('id',  $device_id)->update(['status' =>'NOT ENGAGE']);
+        $device = Device::where('id',  $device_id)->update(['machine_id' =>null]);
+        $data = MachineDeviceAssoc::where("device_id",$device_id)->latest()->first();
+        if ($device){
+            $posted_data['machine_id']=$data['machine_id'];
+            $posted_data['device_id']=$data['device_id'];
+            $posted_data['status']='NOT ENGAGE';
+
+            $model = MachineDeviceAssoc::create($posted_data);
+            return response()->json(['status_code' => 200, 'message' => 'Device reset successfully', 'data' => $device]);
+        }else{
+            return response()->json(['status_code' => 404, 'message' => 'Device unable to reset.']);
+        }
     }
 }

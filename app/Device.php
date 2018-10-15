@@ -10,20 +10,23 @@ class Device extends Model {
   protected $table = 'devices';
   protected $guarded = ['id','created_at', 'updated_at'];
   private $rules = array(
-      'name' => 'required:unique:devices,name,'
+      'name' => 'required|unique:devices,name,'
   );
 
   private $errors;
 
   public function validate($data) {
     if ($this->id)
+      
             $this->rules['name'] .= $this->id;
 
       $validator = Validator::make($data, $this->rules);
       if ($validator->fails()) {
+
           $this->errors = $validator->errors();
           return false;
       }
+
       return true;
   }
 
@@ -32,7 +35,11 @@ class Device extends Model {
   }
 
   public function machine() {
-        return $this->belongsToMany('App\Machine', 'machine_device_assocs','device_id','machine_id');
+        return $this->belongsToMany('App\Machine', 'machine_device_assocs','device_id','machine_id')->latest();
+  }
+
+  public function machineData() {
+        return $this->belongsTo('App\Machine','machine_id');
   }
 
   public function status_reason_port_one_0() {

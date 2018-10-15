@@ -42,17 +42,40 @@ class UserMachineAssocController extends Controller
             }
         }
         catch(\Exception $e){
-          DB::rollback();
-          throw $e;
+            DB::rollback();
+            throw $e;
         }
     }
-
+/*
     public function getMachineIdByUserId($id) {
         $userId=User::where("id",$id)->pluck('id')->first();
+
         if($userId){
             $machine['machine_id'] = User_Machine_Assoc::where("user_id",$userId)->where('status','=', 'ENGAGE')->latest()->pluck('machine_id')->first();
+            $machine['machine_name'] = Machine::where("id",$machine['machine_id'])->pluck('name')->first();
+            $machine['status'] = Machine::where("id",$machine['machine_id'])->pluck('status')->first();
+            
             if($machine['machine_id']!=null){
                 return response()->json(['status_code' => 200, 'message' => 'Machine info', 'data' => $machine]);
+            }else{
+                return response()->json(['status_code' => 404, 'message' => 'Record not found']);
+            }
+        }else{
+            return response()->json(['status_code' => 404, 'message' => 'Record not found']);
+        }
+    }
+    */
+
+    public function getMachineIdByUserId($id) {
+        $user=User_Machine_Assoc::where("user_id",$id)->latest()->first();
+        
+        if($user && $user['status'] == 'ENGAGE'){
+            
+            $user['machine_name'] = Machine::where("id",$user['machine_id'])->pluck('name')->first();
+            $user['status'] = Machine::where("id",$user['machine_id'])->pluck('status')->first();
+            
+            if($user['machine_id']!=null){
+                return response()->json(['status_code' => 200, 'message' => 'Machine info', 'data' => $user]);
             }else{
                 return response()->json(['status_code' => 404, 'message' => 'Record not found']);
             }
@@ -88,19 +111,24 @@ class UserMachineAssocController extends Controller
             $model = User_Machine_Assoc::create($posted_data);
             return response()->json(['status_code' => 200, 'message' => 'Machine reset successfully', 'data' => $machine]);
         }else{
-        return response()->json(['status_code' => 404, 'message' => 'Machine unable to reset.']);
+            return response()->json(['status_code' => 404, 'message' => 'Machine unable to reset.']);
         }
     }
 
     public function resetMachineByUserId($id) {
         
         $data = User_Machine_Assoc::where("user_id",$id)->where("status","ENGAGE")->latest()->first();
+
         if($data){
             $machine = Machine::where('id', $data['machine_id'])->where("status","ENGAGE")->first();
+            
             if ($machine){
                 $posted_data['machine_id']=$data['machine_id'];
                 $posted_data['user_id']=$data['user_id'];
                 $posted_data['status']='NOT ENGAGE';
+
+                $machine->status = 'NOT ENGAGE';
+                $machine->update();
 
                 $model = User_Machine_Assoc::create($posted_data);
                 return response()->json(['status_code' => 200, 'message' => 'Machine reset successfully', 'data' => $machine]);

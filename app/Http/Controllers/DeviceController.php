@@ -11,6 +11,8 @@ use Illuminate\Support\Collection;
 use Excel;
 use Config;
 use App\Status_Reason;
+use App\MachineDeviceAssoc;
+use App\Machine;
 
 class DeviceController extends BaseController {
   public function createDevice() {
@@ -19,6 +21,7 @@ class DeviceController extends BaseController {
     $object = new Device();
     if ($object->validate($posted_data)) {
       $posted_data['status']='NOT ENGAGE';
+      $postd_data["machine_id"] ="";
       // return $posted_data;
       $device = Device::where("name",$posted_data['name'])->first();
       if($device){
@@ -69,9 +72,11 @@ class DeviceController extends BaseController {
   
   public function updateDevice() {
     $posted_data = Input::all();
-
-    $object = new Device();
+ 
+    // $object = new Device();
+    $object = Device::find($posted_data['id']);
     if ($object->validate($posted_data)) {
+
       if(!is_numeric($posted_data["port_one_0_reason"])){
         $data = [];
         $data["status"] = "port_one_0";
@@ -104,20 +109,23 @@ class DeviceController extends BaseController {
         $model4 = Status_Reason::create($data);
         $posted_data["port_two_1_reason"] = $model4->id;
       }
+
       $device = Device::where('id',$posted_data['id'])->update($posted_data);
+
       if($device){
-        $res = Device::find($posted_data['id']);
+        $res = Device::with('machineData')->find($posted_data['id']);
         return response()->json(['status_code' => 200, 'message' => 'Device updated successfully', 'data' => $res]);
       }else{
         return response()->json(['status_code' => 404, 'message' => 'Device not found']);
       }
     } else {
+
       throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to update device.', $object->errors());
     }
   }
 
   public function getDevices() {
-    $device = Device::where('status','NOT ENGAGE')->get();
+    $device = Device::with('machineData')->where('status','NOT ENGAGE')->get();
     if ($device){
       return response()->json(['status_code' => 200, 'message' => 'Device list', 'data' => $device]);
 
@@ -127,7 +135,33 @@ class DeviceController extends BaseController {
   }
 
   public function getAllDevices() {
-    $device = Device::All();
+    $device = Device::with('machineData')->get();
+
+    //   if($device && count($device) > 0){
+    //       foreach ($device as $device_entry ) {
+
+    //           $machine_data = MachineDeviceAssoc::where("device_id",$device_entry->id)->latest()->first();
+    //           if($machine_data){
+
+    //               if($machine_data->status =='ENGAGE'){
+
+    //                     $machine['id'] = $machine_data->machine_id;
+
+    //                     $machine['machine_name'] = Machine::where("id",$machine_data->machine_id)->pluck('name')->first();
+    //               }
+    //               else{
+    //                     $machine = NULL;
+    //               }
+
+    //             $device_entry->machine = $machine;  
+    //           }
+    //           else{
+    //              $device_entry->machine = NULL;
+    //           }  
+    //       }
+    // }
+
+
     if ($device){
       return response()->json(['status_code' => 200, 'message' => 'Device list', 'data' => $device]);
 
@@ -137,7 +171,7 @@ class DeviceController extends BaseController {
   }
 
   public function getDeviceById($id) {
-      $device = Device::with('status_reason_port_one_0','status_reason_port_one_1','status_reason_port_two_0','status_reason_port_two_1')->where("id",$id)->first();
+      $device = Device::with('status_reason_port_one_0','status_reason_port_one_1','status_reason_port_two_0','status_reason_port_two_1','machineData')->where("id",$id)->first();
       if ($device){
         return response()->json(['status_code' => 200, 'message' => 'Device info', 'data' => $device]);
 

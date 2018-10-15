@@ -15,9 +15,9 @@ class CreateUserMachineAssocsTable extends Migration
     {
         Schema::create('user__machine__assocs', function (Blueprint $table) {
             $table->increments('id');
-            $table->bigInteger('user_id')->unsigned();
+            $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->bigInteger('machine_id')->unsigned();
+            $table->integer('machine_id')->unsigned();
             $table->foreign('machine_id')->references('id')->on('machines')->onUpdate('cascade')->onDelete('cascade');
             $table->string('status')->nullable();
             $table->timestamps();

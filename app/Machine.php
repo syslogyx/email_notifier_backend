@@ -10,7 +10,7 @@ class Machine extends Model
     protected $table = 'machines';
 	protected $guarded = ['id','created_at', 'updated_at'];
 	private $rules = array(
-	    'name' => 'required:unique:machines,name,',
+	    'name' => 'required|unique:machines,name,',
 	    'email_ids' => 'required'
 	);
 
@@ -33,6 +33,7 @@ class Machine extends Model
 	}
 
 	public function devices() {
-        return $this->belongsToMany('App\Device', 'machine_device_assocs','machine_id','device_id')->where('machine_device_assocs.status','ENGAGE')->latest();
+        return $this->belongsToMany('App\Device', 'machine_device_assocs','machine_id','device_id')->where('machine_device_assocs.status','ENGAGE')->latest()->first();
     }
+
 }

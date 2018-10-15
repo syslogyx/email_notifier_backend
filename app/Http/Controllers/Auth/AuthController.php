@@ -17,8 +17,8 @@ use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Http\Transformers\UserAuthTransformer;
-
-
+use App\User_Machine_Assoc;
+use App\Machine;
 
 
 //use Symfony\Component\Debug\ErrorHandler;
@@ -50,11 +50,23 @@ class AuthController extends Controller {
         $email = $request["email"];
 
         $user = User::where('email', $email)->with('role')->first();
+        $user_machine_data =  User_Machine_Assoc::where('user_id',$user->id)->latest()->first();
+        // print_r($user_machine_data);
+        // die();
+        if($user_machine_data->status == 'ENGAGE'){
+            $user['machine_id'] = $user_machine_data->machine_id;
+            $user["machine_name"] = Machine::where('id', $user['machine_id'])->pluck('name')->first();
+        }else{
+            $user['machine_id'] ='';
+            $user["machine_name"] ='';
+        }
+        // $user['machine_id'] =  User_Machine_Assoc::where('user_id',$user->id)->where('status','ENGAGE')->latest()->pluck('machine_id')->first();
+        // $user["machine_name"] = Machine::where('id', $user['machine_id'])->pluck('name')->first();
         //return  $temp = User::where('id',$user['id'])->update(['remember_token'=> $token]);
-        
+       
         $user['remember_token']= $token;
-        $user->save();
-        // return $user;
+        // $user->save();
+       
         if ($user) {
 
           return response()->json(['status_code' => 200, 'message' => 'user login successfully', 'data' => $user]);

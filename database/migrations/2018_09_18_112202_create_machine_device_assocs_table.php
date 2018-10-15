@@ -15,9 +15,9 @@ class CreateMachineDeviceAssocsTable extends Migration
     {
         Schema::create('machine_device_assocs', function (Blueprint $table) {
             $table->increments('id');
-            $table->bigInteger('device_id')->unsigned();
+            $table->integer('device_id')->unsigned();
             $table->foreign('device_id')->references('id')->on('devices')->onUpdate('cascade')->onDelete('cascade');
-            $table->bigInteger('machine_id')->unsigned();
+            $table->integer('machine_id')->unsigned();
             $table->foreign('machine_id')->references('id')->on('machines')->onUpdate('cascade')->onDelete('cascade');
             $table->string('status')->nullable();
             $table->timestamps();

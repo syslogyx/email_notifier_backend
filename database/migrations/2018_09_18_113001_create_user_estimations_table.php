@@ -15,11 +15,11 @@ class CreateUserEstimationsTable extends Migration
     {
         Schema::create('user_estimations', function (Blueprint $table) {
             $table->increments('id');
-            $table->bigInteger('user_id')->unsigned();
+            $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->bigInteger('machine_status_id')->unsigned();
+            $table->integer('machine_status_id')->unsigned();
             $table->foreign('machine_status_id')->references('id')->on('machine_statuses')->onUpdate('cascade')->onDelete('cascade');
-            $table->bigInteger('reason')->unsigned();
+            $table->integer('reason')->unsigned();
             $table->foreign('reason')->references('id')->on('status__reasons')->onUpdate('cascade')->onDelete('cascade');
             $table->string('msg');
             $table->timestamps();
