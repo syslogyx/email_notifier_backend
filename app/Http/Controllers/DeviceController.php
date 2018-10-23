@@ -27,37 +27,37 @@ class DeviceController extends BaseController {
       if($device){
         return response()->json(['status_code' => 201, 'message' => 'Device already created']);
       }else{
-        if(!is_numeric($posted_data["port_one_0_reason"])){
+        if(!is_numeric($posted_data["port_1_0_reason"])){
           $data = [];
-          $data["status"] = "port_one_0";
-          $data["reason"] = $posted_data["port_one_0_reason"];
+          $data["status"] = "port_1_0";
+          $data["reason"] = $posted_data["port_1_0_reason"];
         
           $model1 = Status_Reason::create($data);
-          $posted_data["port_one_0_reason"] = $model1->id;
+          $posted_data["port_1_0_reason"] = $model1->id;
         }
-        if(!is_numeric($posted_data["port_one_1_reason"])){
+        if(!is_numeric($posted_data["port_1_1_reason"])){
           $data = [];
-          $data["status"] = "port_one_1";
-          $data["reason"] = $posted_data["port_one_1_reason"];
+          $data["status"] = "port_1_1";
+          $data["reason"] = $posted_data["port_1_1_reason"];
         
           $model2 = Status_Reason::create($data);
-          $posted_data["port_one_1_reason"] = $model2->id;
+          $posted_data["port_1_1_reason"] = $model2->id;
         }
-        if(!is_numeric($posted_data["port_two_0_reason"])){
+        if(!is_numeric($posted_data["port_2_0_reason"])){
           $data = [];
-          $data["status"] = "port_two_0";
-          $data["reason"] = $posted_data["port_two_0_reason"];
+          $data["status"] = "port_2_0";
+          $data["reason"] = $posted_data["port_2_0_reason"];
         
           $model3 = Status_Reason::create($data);
-          $posted_data["port_two_0_reason"] = $model3->id;
+          $posted_data["port_2_0_reason"] = $model3->id;
         }
-        if(!is_numeric($posted_data["port_two_1_reason"])){
+        if(!is_numeric($posted_data["port_2_1_reason"])){
           $data = [];
-          $data["status"] = "port_two_1";
-          $data["reason"] = $posted_data["port_two_1_reason"];
+          $data["status"] = "port_2_1";
+          $data["reason"] = $posted_data["port_2_1_reason"];
         
           $model4 = Status_Reason::create($data);
-          $posted_data["port_two_1_reason"] = $model4->id;
+          $posted_data["port_2_1_reason"] = $model4->id;
         }
         
         $device = Device::create($posted_data);
@@ -77,37 +77,37 @@ class DeviceController extends BaseController {
     $object = Device::find($posted_data['id']);
     if ($object->validate($posted_data)) {
 
-      if(!is_numeric($posted_data["port_one_0_reason"])){
+      if(!is_numeric($posted_data["port_1_0_reason"])){
         $data = [];
-        $data["status"] = "port_one_0";
-        $data["reason"] = $posted_data["port_one_0_reason"];
+        $data["status"] = "port_1_0";
+        $data["reason"] = $posted_data["port_1_0_reason"];
       
         $model1 = Status_Reason::create($data);
-        $posted_data["port_one_0_reason"] = $model1->id;
+        $posted_data["port_1_0_reason"] = $model1->id;
       }
-      if(!is_numeric($posted_data["port_one_1_reason"])){
+      if(!is_numeric($posted_data["port_1_1_reason"])){
         $data = [];
-        $data["status"] = "port_one_1";
-        $data["reason"] = $posted_data["port_one_1_reason"];
+        $data["status"] = "port_1_1";
+        $data["reason"] = $posted_data["port_1_1_reason"];
       
         $model2 = Status_Reason::create($data);
-        $posted_data["port_one_1_reason"] = $model2->id;
+        $posted_data["port_1_1_reason"] = $model2->id;
       }
-      if(!is_numeric($posted_data["port_two_0_reason"])){
+      if(!is_numeric($posted_data["port_2_0_reason"])){
         $data = [];
-        $data["status"] = "port_two_0";
-        $data["reason"] = $posted_data["port_two_0_reason"];
+        $data["status"] = "port_2_0";
+        $data["reason"] = $posted_data["port_2_0_reason"];
       
         $model3 = Status_Reason::create($data);
-        $posted_data["port_two_0_reason"] = $model3->id;
+        $posted_data["port_2_0_reason"] = $model3->id;
       }
-      if(!is_numeric($posted_data["port_two_1_reason"])){
+      if(!is_numeric($posted_data["port_2_1_reason"])){
         $data = [];
-        $data["status"] = "port_two_1";
-        $data["reason"] = $posted_data["port_two_1_reason"];
+        $data["status"] = "port_2_1";
+        $data["reason"] = $posted_data["port_2_1_reason"];
       
         $model4 = Status_Reason::create($data);
-        $posted_data["port_two_1_reason"] = $model4->id;
+        $posted_data["port_2_1_reason"] = $model4->id;
       }
 
       $device = Device::where('id',$posted_data['id'])->update($posted_data);
