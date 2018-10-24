@@ -24,7 +24,7 @@ class UserMachineAssocController extends Controller
                 $posted_data['status']='ENGAGE';
                 $model = User_Machine_Assoc::create($posted_data);
                 if ($model){
-                    $device = Machine::where('id', $posted_data['machine_id'])->where('status','<>', 'ENGAGE')->update(['status' =>'ENGAGE']);
+                    $device = Machine::where('id', $posted_data['machine_id'])->where('status','<>', 'ENGAGE')->update(['status' =>'ENGAGE','user_id' =>$posted_data['user_id']]);
                     if($device){
                         if($find=='' || $find['status']=='ENGAGE'){
                             $updateDevice = Machine::where('id',  $find['machine_id'])->update(['status' =>'NOT ENGAGE']);
@@ -54,7 +54,7 @@ class UserMachineAssocController extends Controller
             $machine['machine_id'] = User_Machine_Assoc::where("user_id",$userId)->where('status','=', 'ENGAGE')->latest()->pluck('machine_id')->first();
             $machine['machine_name'] = Machine::where("id",$machine['machine_id'])->pluck('name')->first();
             $machine['status'] = Machine::where("id",$machine['machine_id'])->pluck('status')->first();
-            
+
             if($machine['machine_id']!=null){
                 return response()->json(['status_code' => 200, 'message' => 'Machine info', 'data' => $machine]);
             }else{
@@ -68,12 +68,12 @@ class UserMachineAssocController extends Controller
 
     public function getMachineIdByUserId($id) {
         $user=User_Machine_Assoc::where("user_id",$id)->latest()->first();
-        
+
         if($user && $user['status'] == 'ENGAGE'){
-            
+
             $user['machine_name'] = Machine::where("id",$user['machine_id'])->pluck('name')->first();
             $user['status'] = Machine::where("id",$user['machine_id'])->pluck('status')->first();
-            
+
             if($user['machine_id']!=null){
                 return response()->json(['status_code' => 200, 'message' => 'Machine info', 'data' => $user]);
             }else{
@@ -92,14 +92,14 @@ class UserMachineAssocController extends Controller
                 return response()->json(['status_code' => 200, 'message' => 'Device info', 'data' => $device]);
             }else{
                 return response()->json(['status_code' => 404, 'message' => 'Record not found']);
-            }        
+            }
         }else{
             return response()->json(['status_code' => 404, 'message' => 'Record not found']);
         }
     }
 
     public function resetMachineById($id) {
-        $machine = Machine::where('id', $id)->update(['status' =>'NOT ENGAGE']);
+        $machine = Machine::where('id', $id)->update(['status' =>'NOT ENGAGE','user_id'=>NULL]);
 
         $data = User_Machine_Assoc::where("machine_id",$id)->where("status","ENGAGE")->latest()->first();
 
@@ -116,25 +116,29 @@ class UserMachineAssocController extends Controller
     }
 
     public function resetMachineByUserId($id) {
-        
-        $data = User_Machine_Assoc::where("user_id",$id)->where("status","ENGAGE")->latest()->first();
 
-        if($data){
-            $machine = Machine::where('id', $data['machine_id'])->where("status","ENGAGE")->first();
-            
-            if ($machine){
-                $posted_data['machine_id']=$data['machine_id'];
-                $posted_data['user_id']=$data['user_id'];
-                $posted_data['status']='NOT ENGAGE';
+        // $data = User_Machine_Assoc::where("user_id",$id)->where("status","ENGAGE")->latest()->first();
+        //
+        // if($data){
+            $machine = Machine::where('user_id', $id)->where("status","ENGAGE")->get();
 
-                $machine->status = 'NOT ENGAGE';
-                $machine->update();
-
-                $model = User_Machine_Assoc::create($posted_data);
-                return response()->json(['status_code' => 200, 'message' => 'Machine reset successfully', 'data' => $machine]);
-            }else{
-                return response()->json(['status_code' => 404, 'message' => 'Machine unable to reset.']);
-            }
+            // if ($machine){
+            //     $posted_data['machine_id']=$data['machine_id'];
+            //     $posted_data['user_id']=$data['user_id'];
+            //     $posted_data['status']='NOT ENGAGE';
+            //
+            //     $machine->status = 'NOT ENGAGE';
+            //     $machine->update();
+            //
+            //     $model = User_Machine_Assoc::create($posted_data);
+                if($machine && count($machine) > 0){
+                    foreach ($machine as $machines) {
+                      $this->resetMachineById($machines['id']);
+                    }
+                return response()->json(['status_code' => 200, 'message' => 'Machine reset successfully']);
+            // }else{
+            //     return response()->json(['status_code' => 404, 'message' => 'Machine unable to reset.']);
+            // }
         }else{
             return response()->json(['status_code' => 404, 'message' => 'Machine unable to reset.']);
         }
