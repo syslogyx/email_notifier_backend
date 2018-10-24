@@ -43,19 +43,19 @@ class Device extends Model {
   }
 
   public function status_reason_port_one_0() {
-        return $this->belongsTo('App\Status_Reason','port_one_0_reason');
+        return $this->belongsTo('App\Status_Reason','port_1_0_reason');
   }
 
   public function status_reason_port_one_1() {
-        return $this->belongsTo('App\Status_Reason','port_one_1_reason');
+        return $this->belongsTo('App\Status_Reason','port_1_1_reason');
   }
 
   public function status_reason_port_two_0() {
-        return $this->belongsTo('App\Status_Reason','port_two_0_reason');
+        return $this->belongsTo('App\Status_Reason','port_2_0_reason');
   }
 
   public function status_reason_port_two_1() {
-        return $this->belongsTo('App\Status_Reason','port_two_1_reason');
+        return $this->belongsTo('App\Status_Reason','port_2_1_reason');
   }
 
 }
