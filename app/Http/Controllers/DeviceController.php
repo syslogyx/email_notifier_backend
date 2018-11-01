@@ -13,12 +13,17 @@ use Config;
 use App\Status_Reason;
 use App\MachineDeviceAssoc;
 use App\Machine;
+use App\User;
+use Illuminate\Support\Facades\Mail;
+use Bogardo\Mailgun\MailgunServiceProvider;
+
 
 class DeviceController extends BaseController {
   public function createDevice() {
     $posted_data = Input::all();
 
     $object = new Device();
+   
     if ($object->validate($posted_data)) {
       $posted_data['status']='NOT ENGAGE';
       $postd_data["machine_id"] ="";
@@ -29,32 +34,41 @@ class DeviceController extends BaseController {
       }else{
         if(!is_numeric($posted_data["port_1_0_reason"])){
           $data = [];
-          $data["status"] = "port_1_0";
+          $data["status"] = "0";
           $data["reason"] = $posted_data["port_1_0_reason"];
+          $data["device_id"] = NULL;
+          $data["port_no"] = "port_1";
+
         
           $model1 = Status_Reason::create($data);
           $posted_data["port_1_0_reason"] = $model1->id;
         }
         if(!is_numeric($posted_data["port_1_1_reason"])){
           $data = [];
-          $data["status"] = "port_1_1";
+          $data["status"] = "1";
           $data["reason"] = $posted_data["port_1_1_reason"];
+          $data["device_id"] = NULL;
+          $data["port_no"] = "port_1";
         
           $model2 = Status_Reason::create($data);
           $posted_data["port_1_1_reason"] = $model2->id;
         }
         if(!is_numeric($posted_data["port_2_0_reason"])){
           $data = [];
-          $data["status"] = "port_2_0";
+          $data["status"] = "0";
           $data["reason"] = $posted_data["port_2_0_reason"];
+          $data["device_id"] = NULL;
+          $data["port_no"] = "port_2";
         
           $model3 = Status_Reason::create($data);
           $posted_data["port_2_0_reason"] = $model3->id;
         }
         if(!is_numeric($posted_data["port_2_1_reason"])){
           $data = [];
-          $data["status"] = "port_2_1";
+          $data["status"] = "1";
           $data["reason"] = $posted_data["port_2_1_reason"];
+          $data["device_id"] = NULL;
+          $data["port_no"] = "port_2";
         
           $model4 = Status_Reason::create($data);
           $posted_data["port_2_1_reason"] = $model4->id;
@@ -79,32 +93,40 @@ class DeviceController extends BaseController {
 
       if(!is_numeric($posted_data["port_1_0_reason"])){
         $data = [];
-        $data["status"] = "port_1_0";
+        $data["status"] = "0";
         $data["reason"] = $posted_data["port_1_0_reason"];
+        $data["device_id"] = NULL;
+        $data["port_no"] = "port_1";
       
         $model1 = Status_Reason::create($data);
         $posted_data["port_1_0_reason"] = $model1->id;
       }
       if(!is_numeric($posted_data["port_1_1_reason"])){
         $data = [];
-        $data["status"] = "port_1_1";
+        $data["status"] = "1";
         $data["reason"] = $posted_data["port_1_1_reason"];
+        $data["device_id"] = NULL;
+        $data["port_no"] = "port_1";
       
         $model2 = Status_Reason::create($data);
         $posted_data["port_1_1_reason"] = $model2->id;
       }
       if(!is_numeric($posted_data["port_2_0_reason"])){
         $data = [];
-        $data["status"] = "port_2_0";
+        $data["status"] = "0";
         $data["reason"] = $posted_data["port_2_0_reason"];
+        $data["device_id"] = NULL;
+        $data["port_no"] = "port_2";
       
         $model3 = Status_Reason::create($data);
         $posted_data["port_2_0_reason"] = $model3->id;
       }
       if(!is_numeric($posted_data["port_2_1_reason"])){
         $data = [];
-        $data["status"] = "port_2_1";
+        $data["status"] = "1";
         $data["reason"] = $posted_data["port_2_1_reason"];
+        $data["device_id"] = NULL;
+        $data["port_no"] = "port_2";
       
         $model4 = Status_Reason::create($data);
         $posted_data["port_2_1_reason"] = $model4->id;
@@ -211,4 +233,57 @@ class DeviceController extends BaseController {
       throw new \Dingo\Api\Exception\StoreResourceFailedException('Data already entered/invalid data in file',[$e->getMessage()]);
     }
   }
+
+  public function getDeviceStatusReasonAndEmail(){
+      $posted_data = Input::all();
+
+      $key = array_keys($posted_data);
+      $port_no = $key[1];
+      $portNoColumnName = $port_no.'_'.$posted_data[$port_no].'_reason';
+      $object = Device::find($posted_data['device_id']);
+
+      if($object) {
+          $machine = Machine::where('id',$object->machine_id)->first();
+          $assignUserEmail = User:: where('id',$machine->user_id)->pluck('email')->first();
+          $statusReason = Status_Reason::where('id',$object[$portNoColumnName])->pluck('reason')->first();
+          // print_r($statusReason);
+          // die();
+         
+          $data =[];
+          $data['machine_id'] = $machine['id'];
+          $data['machine_name'] = $machine['name'];
+          $data['email_ids'] = $machine['email_ids'].','.$assignUserEmail;
+          $data['reason'] = $statusReason;
+
+          $this->sendMailToUsers($data);
+
+          if($data){
+              return response()->json(['status_code' => 200, 'message' => 'Device information found successfully', 'data' => $data]);
+          }else{
+              return response()->json(['status_code' => 404, 'message' => 'Device information not found']);
+          }
+      }else {
+          throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to get  device information.', $object->errors());
+      }
+  }
+
+  function sendMailToUsers($model) {
+
+        config(['mail.username' => 'sonal.kesare@syslogic.in',
+                'mail.password' => 'sonal']);
+       
+        $email = explode(',', $model['email_ids']);
+       
+        $subjectMsg = 'Machine('.$model['machine_name'].') - status';
+
+        Mail::send('email.email_template', $model, function($message) use ($email,$subjectMsg) {        
+            $message->to($email);
+            $message->subject($subjectMsg);
+        });
+
+        if (count(Mail::failures()) > 0) {
+            $errors = 'Failed to send email, please try again.';
+            return $errors;
+        }
+    }
 }

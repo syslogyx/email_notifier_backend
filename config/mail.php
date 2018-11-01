@@ -29,7 +29,7 @@ return [
     |
     */
 
-    'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+    'host' => env('MAIL_HOST', 'mail.syslogic.in'),
 
     /*
     |--------------------------------------------------------------------------
@@ -56,7 +56,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'sonal@syslogic.in'),
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
@@ -101,7 +101,7 @@ return [
 
     'sendmail' => '/usr/sbin/sendmail -bs',
 
-     'pretend' => false
+     // 'pretend' => false
     /*
     |--------------------------------------------------------------------------
     | Markdown Mail Settings
@@ -113,19 +113,19 @@ return [
     |
     */
 
-    // 'markdown' => [
-    //     'theme' => 'default',
+    'markdown' => [
+        'theme' => 'default',
 
-    //     'paths' => [
-    //         resource_path('views/vendor/mail'),
-    //     ],
-    // ],
-    // 'stream' => [
-    //     'ssl' => [
-    //         'allow_self_signed' => true,
-    //         'verify_peer' => false,
-    //         'verify_peer_name' => false,
-    //     ],
-    // ],
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
+    'stream' => [
+        'ssl' => [
+            'allow_self_signed' => true,
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+        ],
+    ],
 
 ];

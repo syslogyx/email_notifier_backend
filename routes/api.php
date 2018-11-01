@@ -39,6 +39,8 @@ $api->version("v1", function($api) {
     $api->get("get/device/{id}", "App\Http\Controllers\DeviceController@getDeviceById");
     $api->post("import/devices", "App\Http\Controllers\DeviceController@importDevices");
 
+    $api->put("get/devicesInfo", "App\Http\Controllers\DeviceController@getDeviceStatusReasonAndEmail");
+
     // reasons API
 
     $api->post("add/reason", "App\Http\Controllers\StatusReasonController@addReason");

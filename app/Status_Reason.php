@@ -10,11 +10,13 @@ use Validator;
 class Status_Reason extends Model
 {
   protected $fillable = [
-      'status', 'reason'
+      'status', 'reason','device_id','port_no'
   ];
   private $rules = array(
       'status' => 'required',
-      'reason' => 'required'
+      'reason' => 'required',
+      'device_id' =>'nullable',
+      'port_no' =>'nullable'
   );
   protected $table = 'status__reasons';
   protected $guarded = ['id', 'created_at', 'updated_at'];

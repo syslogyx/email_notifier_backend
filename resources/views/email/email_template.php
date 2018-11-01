@@ -8,5 +8,5 @@
 
 echo 'Hello User,';
 echo '<br>';
-echo '"'.$mom_title.'" is created on "'.$mom_date.'" at "'.$mom_venue.'"';
+echo 'Machine "'.$machine_name.'" is in "'.$reason.'" status.';
 ?>

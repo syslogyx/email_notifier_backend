@@ -53,13 +53,19 @@ class AuthController extends Controller {
         $user_machine_data =  User_Machine_Assoc::where('user_id',$user->id)->latest()->first();
         // print_r($user_machine_data);
         // die();
-        if($user_machine_data->status == 'ENGAGE'){
+        if($user_machine_data){
+            if($user_machine_data->status == 'ENGAGE'){
             $user['machine_id'] = $user_machine_data->machine_id;
             $user["machine_name"] = Machine::where('id', $user['machine_id'])->pluck('name')->first();
+            }else{
+                $user['machine_id'] ='';
+                $user["machine_name"] ='';
+            }
         }else{
             $user['machine_id'] ='';
             $user["machine_name"] ='';
         }
+        
         // $user['machine_id'] =  User_Machine_Assoc::where('user_id',$user->id)->where('status','ENGAGE')->latest()->pluck('machine_id')->first();
         // $user["machine_name"] = Machine::where('id', $user['machine_id'])->pluck('name')->first();
         //return  $temp = User::where('id',$user['id'])->update(['remember_token'=> $token]);
