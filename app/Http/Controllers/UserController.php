@@ -58,11 +58,14 @@ class UserController extends BaseController {
     $users = User::with('role')->get();
     if($users && count($users) > 0){
         foreach ($users as $user_entry ) {
-            $machine_data = User_Machine_Assoc::where("user_id",$user_entry->id)->latest()->first();
+            //$machine_data = User_Machine_Assoc::where("user_id",$user_entry->id)->latest()->first();
+             $machine_data = Machine::where("user_id",$user_entry->id)->first();
             if($machine_data){
                 if($machine_data->status =='ENGAGE'){
-                      $machine['id'] = $machine_data->machine_id;
-                      $machine['machine_name'] = Machine::where("id",$machine_data->machine_id)->pluck('name')->first();
+                      // $machine['id'] = $machine_data->machine_id;
+                      // $machine['machine_name'] = Machine::where("id",$machine_data->machine_id)->pluck('name')->first();
+                    $machine['id'] = $machine_data->id;
+                      $machine['machine_name'] =$machine_data->name;
                 }
                 else{
                     $machine = NULL;

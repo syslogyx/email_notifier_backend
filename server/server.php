@@ -9,10 +9,10 @@ set_time_limit(0);
  * as it comes in. */
 ob_implicit_flush();
 
-$address = '172.16.1.36';
-$port = 9000;
+$address = '172.16.1.97';
+$port = 9001;
 
-$server_api = "http://172.16.1.36:8000/api/dcd";
+$server_api = "http://172.16.1.97:9000/api";
 // $server_api = "http://172.16.1.91:8088/smarttbm_new/api/dcd";
 
 if (($sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) === false) {
@@ -35,26 +35,31 @@ do {
     /* Send instructions. */
     $msg = "\nWelcome to the PHP Test Server. \n" .
         "To quit, type 'quit'. To shut down the server type 'shutdown'.\n";
-    socket_write($msgsock, $msg, strlen($msg));
+    //socket_write($msgsock, $msg, strlen($msg));
 
     do {
         if (false === ($buf = socket_read($msgsock, 2048, PHP_NORMAL_READ))) {
             echo "socket_read() failed: reason: " . socket_strerror(socket_last_error($msgsock)) . "\n";
             break 2;
         }
-        if (!$buf = trim($buf)) {
-            continue;
+        if ($buf == "\r\n") {
+          if (!$buf = trim($buf)) {
+              continue;
+          }
+          if ($buf == 'quit') {
+              break;
+          }
+          if ($buf == 'shutdown') {
+              socket_close($msgsock);
+              break 2;
+          }
         }
-        if ($buf == 'quit') {
-            break;
-        }
-        if ($buf == 'shutdown') {
-            socket_close($msgsock);
-            break 2;
-        }
-        $talkback = "PHP: You said '$buf'.\n";
-        socket_write($msgsock, $talkback, strlen($talkback));
-        sendEmail($buf);
+       // $talkback = "PHP: You said '$buf'.\n";
+        //socket_write($msgsock, $talkback, strlen($talkback));
+        $res = sendEmail($buf);
+        print_r($res);
+        //echo $res;
+         socket_write($msgsock, $res, strlen($res));
 
     } while (true);
     socket_close($msgsock);
@@ -67,15 +72,17 @@ socket_close($sock);
 function sendEmail ($request){
   echo "$request\n";
   global $server_api;
-  $dcd_ip = array('dcd_linked_ip' => $dcd_ip);
-  $ch = curl_init($server_api.'/handshake');
+
+  // $request = ['{"device_id": "3","port_1":"1"}'];
+  
+  $ch = curl_init($server_api.'/get/devicesInfo');
   curl_setopt_array($ch, array(
     CURLOPT_POST => TRUE,
     CURLOPT_RETURNTRANSFER => TRUE,
     CURLOPT_HTTPHEADER => array(
          'Content-Type: application/json'
     ),
-    CURLOPT_POSTFIELDS => json_encode($dcd_ip),
+    CURLOPT_POSTFIELDS => json_encode($request),
     CURLOPT_FOLLOWLOCATION => true,
     CURLOPT_SSL_VERIFYHOST => false,
     CURLOPT_SSL_VERIFYPEER => false,
@@ -92,6 +99,11 @@ function sendEmail ($request){
 
   // Decode the response
   $responseData = json_decode($response, TRUE);
+  if($responseData["status_code"]==200 || $responseData["status_code"]==201){
+    return ("Success".chr(0x0D));
+  }else{
+     return 'Fail';
+  }
   return $responseData;
 }
 ?>

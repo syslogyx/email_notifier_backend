@@ -59,6 +59,9 @@ class User extends Authenticatable {
       return $this->belongsTo('App\User_Machine_Assoc','user_id')->where('status','ENGAGE');
     }
 
+    public function assignMachineData() {
+        return $this->hasMany('App\Machine')->where('status','ENGAGE');    
+    }
 
 
 }

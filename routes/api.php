@@ -39,7 +39,7 @@ $api->version("v1", function($api) {
     $api->get("get/device/{id}", "App\Http\Controllers\DeviceController@getDeviceById");
     $api->post("import/devices", "App\Http\Controllers\DeviceController@importDevices");
 
-    $api->put("get/devicesInfo", "App\Http\Controllers\DeviceController@getDeviceStatusReasonAndEmail");
+    $api->post("get/devicesInfo", "App\Http\Controllers\DeviceController@getDeviceStatusReasonAndEmail");
 
     // reasons API
 
@@ -55,7 +55,8 @@ $api->version("v1", function($api) {
     $api->put("update/machine", "App\Http\Controllers\MachineController@updateMachine");
     $api->get("get/machines", "App\Http\Controllers\MachineController@getMachines");
     $api->get("get/allMachines", "App\Http\Controllers\MachineController@getAllMachines");
-    $api->get("get/machine/{id}", "App\Http\Controllers\MachineController@getMachineById");  
+    $api->get("get/machine/{id}", "App\Http\Controllers\MachineController@getMachineById"); 
+    $api->get("get/all_assign_machine/{user_id}", "App\Http\Controllers\MachineController@getAllAssignMachinesByUSerId"); 
 
     // machine and device assoc api
     $api->post("assign/deviceToMachine", "App\Http\Controllers\MachineDeviceAssocController@assignDeviceToMachine");
@@ -70,6 +71,13 @@ $api->version("v1", function($api) {
     $api->get("get/userIdByMachineId/{id}", "App\Http\Controllers\UserMachineAssocController@getUserIdByMachineId");
     $api->get("reset/machineById/{id}", "App\Http\Controllers\UserMachineAssocController@resetMachineById");
     $api->get("reset/machineByUserId/{id}", "App\Http\Controllers\UserMachineAssocController@resetMachineByUserId");
+
+    //machine status API
+    $api->get("get/devicePortStatusByMdchineId/{id}", "App\Http\Controllers\MachineStatusController@GetDevicePortStatus");
+    $api->post("filterUserEstimation", "App\Http\Controllers\MachineStatusController@filterOnMachineStatus");
+
+    //user estimation API
+    $api->post("create/user_estimation", "App\Http\Controllers\UserEstimationController@create");
 
 });
 

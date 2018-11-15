@@ -233,4 +233,15 @@ class MachineController extends Controller
             return response()->json(['status_code' => 404, 'message' => 'Device unable to reset.']);
         }
     }
+
+    public function getAllAssignMachinesByUSerId($user_id)
+    {
+        $machine = Machine::where('user_id',$user_id)->get(); 
+
+         if ($machine){
+          return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);
+        }else{
+          return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
+        }
+    }
 }

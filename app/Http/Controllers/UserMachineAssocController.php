@@ -15,31 +15,43 @@ class UserMachineAssocController extends Controller
         try{
             DB::beginTransaction();
             $posted_data = Input::all();
+            
 
-            $object = new User_Machine_Assoc();
+            $assignedUser = Machine::where('user_id',$posted_data['user_id'])->where('id','<>',$posted_data['machine_id'])->first();
 
-            $find = Machine::where('id',$posted_data['machine_id'])->first();
-
-            if ($object->validate($posted_data)) {
-                $posted_data['status']='ENGAGE';
-                $model = User_Machine_Assoc::create($posted_data);
-                if ($model){
-                    $device = Machine::where('id', $posted_data['machine_id'])->where('status','<>', 'ENGAGE')->update(['status' =>'ENGAGE','user_id' =>$posted_data['user_id']]);
-                    if($device){
-                        if($find=='' || $find['status']=='ENGAGE'){
-                            $updateDevice = Machine::where('id',  $find['machine_id'])->update(['status' =>'NOT ENGAGE']);
-                        }
-                        DB::commit();
-                        return response()->json(['status_code' => 200, 'message' => 'Asssign successfully', 'data' => $model]);
-                    }else {
-                        return response()->json(['status_code' => 404, 'message' => 'Machine already engage.']);
-                    }
-                }else{
-                    return response()->json(['status_code' => 404, 'message' => 'Unable to assign']);
-                }
-            } else {
-                throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to assign.', $object->errors());
+            if($assignedUser){
+                $this->resetMachineById($assignedUser['id']);
             }
+           // else{
+
+            // print_r($assignedUser);
+            // die();
+
+                $object = new User_Machine_Assoc();
+
+                $find = Machine::where('id',$posted_data['machine_id'])->first();
+
+                if ($object->validate($posted_data)) {
+                    $posted_data['status']='ENGAGE';
+                    $model = User_Machine_Assoc::create($posted_data);
+                    if ($model){
+                        $device = Machine::where('id', $posted_data['machine_id'])->where('status','<>', 'ENGAGE')->update(['status' =>'ENGAGE','user_id' =>$posted_data['user_id']]);
+                        if($device){
+                            if($find=='' || $find['status']=='ENGAGE'){
+                                $updateDevice = Machine::where('id',  $find['machine_id'])->update(['status' =>'NOT ENGAGE']);
+                            }
+                            DB::commit();
+                            return response()->json(['status_code' => 200, 'message' => 'Asssign successfully', 'data' => $model]);
+                        }else {
+                            return response()->json(['status_code' => 404, 'message' => 'Machine already engage.']);
+                        }
+                    }else{
+                        return response()->json(['status_code' => 404, 'message' => 'Unable to assign']);
+                    }
+                } else {
+                    throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to assign.', $object->errors());
+                }
+          //  }
         }
         catch(\Exception $e){
             DB::rollback();
@@ -68,6 +80,8 @@ class UserMachineAssocController extends Controller
 
     public function getMachineIdByUserId($id) {
         $user=User_Machine_Assoc::where("user_id",$id)->latest()->first();
+        // print_r($user);
+        // die();
 
         if($user && $user['status'] == 'ENGAGE'){
 
@@ -99,7 +113,10 @@ class UserMachineAssocController extends Controller
     }
 
     public function resetMachineById($id) {
+
         $machine = Machine::where('id', $id)->update(['status' =>'NOT ENGAGE','user_id'=>NULL]);
+
+        $machineData = Machine::get();
 
         $data = User_Machine_Assoc::where("machine_id",$id)->where("status","ENGAGE")->latest()->first();
 
@@ -109,7 +126,7 @@ class UserMachineAssocController extends Controller
             $posted_data['status']='NOT ENGAGE';
 
             $model = User_Machine_Assoc::create($posted_data);
-            return response()->json(['status_code' => 200, 'message' => 'Machine reset successfully', 'data' => $machine]);
+            return response()->json(['status_code' => 200, 'message' => 'Machine reset successfully', 'data' => $machineData]);
         }else{
             return response()->json(['status_code' => 404, 'message' => 'Machine unable to reset.']);
         }

@@ -36,4 +36,8 @@ class Machine extends Model
         return $this->belongsToMany('App\Device', 'machine_device_assocs','machine_id','device_id')->where('machine_device_assocs.status','ENGAGE')->latest()->first();
     }
 
+    public function user() {
+        return $this->belongsTo('App\User');
+    }
+
 }

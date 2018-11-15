@@ -14,6 +14,7 @@ use App\Status_Reason;
 use App\MachineDeviceAssoc;
 use App\Machine;
 use App\User;
+use App\MachineStatus;
 use Illuminate\Support\Facades\Mail;
 use Bogardo\Mailgun\MailgunServiceProvider;
 
@@ -235,35 +236,60 @@ class DeviceController extends BaseController {
   }
 
   public function getDeviceStatusReasonAndEmail(){
-      $posted_data = Input::all();
+     $posted_data = ['{"device_id": "1","port_1":"1"}'];
+     //$posted_data = Input::all();
+     $posted_data= (array) json_decode($posted_data[0]);
+     //return $posted_data[0];
+      
+      if($posted_data != ''){
+          $data = $posted_data;
 
-      $key = array_keys($posted_data);
-      $port_no = $key[1];
-      $portNoColumnName = $port_no.'_'.$posted_data[$port_no].'_reason';
-      $object = Device::find($posted_data['device_id']);
+          $port_no_key = array_keys($posted_data);
+          $port_no_key=$port_no_key[1];
 
-      if($object) {
-          $machine = Machine::where('id',$object->machine_id)->first();
-          $assignUserEmail = User:: where('id',$machine->user_id)->pluck('email')->first();
-          $statusReason = Status_Reason::where('id',$object[$portNoColumnName])->pluck('reason')->first();
-          // print_r($statusReason);
-          // die();
-         
-          $data =[];
-          $data['machine_id'] = $machine['id'];
-          $data['machine_name'] = $machine['name'];
-          $data['email_ids'] = $machine['email_ids'].','.$assignUserEmail;
-          $data['reason'] = $statusReason;
+          $deviceStatusData =[];
+          $deviceStatusData['device_id'] = $posted_data['device_id'];
+          $deviceStatusData['port'] = $port_no_key;
+          $deviceStatusData['status'] = $posted_data[$deviceStatusData['port']];
 
-          $this->sendMailToUsers($data);
+          $machine_id = Device::where('id',$deviceStatusData['device_id'])->pluck('machine_id')->first();
 
-          if($data){
-              return response()->json(['status_code' => 200, 'message' => 'Device information found successfully', 'data' => $data]);
-          }else{
-              return response()->json(['status_code' => 404, 'message' => 'Device information not found']);
+          $deviceStatusData['machine_id'] = $machine_id;
+
+          $machineStatusEntry = MachineStatus::where('device_id',$deviceStatusData['device_id'])->where('port',$deviceStatusData['port'])->latest()->first();
+           
+          if( $machineStatusEntry['status']!= $deviceStatusData['status']){
+              //if(!$machineStatusEntry){
+               $this->updateDeviceStatus($deviceStatusData);
+
+                $portNoColumnName = $deviceStatusData['port'].'_'.$deviceStatusData['status'].'_reason';
+                $object = Device::find($deviceStatusData['device_id']);
+
+                if($object) {
+                    $machine = Machine::where('id',$object->machine_id)->first();
+                    $assignUserEmail = User:: where('id',$machine->user_id)->pluck('email')->first();
+                    $statusReason = Status_Reason::where('id',$object[$portNoColumnName])->pluck('reason')->first();
+                   
+                    $data =[];
+                    $data['machine_id'] = $machine['id'];
+                    $data['machine_name'] = $machine['name'];
+                    $data['email_ids'] = $machine['email_ids'].','.$assignUserEmail;
+                    $data['reason'] = $statusReason;
+
+                    $this->sendMailToUsers($data);
+
+                    if($data){
+                        return response()->json(['status_code' => 200, 'message' => 'Device information found successfully', 'data' => $data]);
+                    }else{
+                        return response()->json(['status_code' => 404, 'message' => 'Device information not found']);
+                    }
+                }else {
+                    throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to get  device information.', $object->errors());
+                }
           }
-      }else {
-          throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to get  device information.', $object->errors());
+          else{
+                return response()->json(['status_code' => 201, 'message' => 'Record already found','reason' =>'Latest record already found']);
+          }      
       }
   }
 
@@ -285,5 +311,43 @@ class DeviceController extends BaseController {
             $errors = 'Failed to send email, please try again.';
             return $errors;
         }
+    }
+
+    function updateDeviceStatus($deviceData){
+      try{
+          DB::beginTransaction();
+          $deviceData['on_time'] = NULL;
+          if($deviceData['status'] == '1'){
+
+              $machineStatusData = MachineStatus::with('userEstimation')->where([['machine_id',$deviceData['machine_id']],['device_id',$deviceData['device_id']]])->latest()->first();
+               // return $machineStatusData;
+              
+              if($machineStatusData){
+                $machineStatusData['on_time'] = new DateTime();
+                $machineModel = MachineStatus::where('id',$machineStatusData['id'])->update(['on_time'=>$machineStatusData['on_time']]);
+              }           
+              // else{
+              //   $machineStatusData['on_time'] = NULL;
+              //   $machineModel = MachineStatus::where('id',$machineStatusData['id'])->update('on_time',$machineStatusData['on_time']);
+              // }
+          }
+          
+          $object = new MachineStatus();
+          if ($object->validate($deviceData)) {
+
+            $model = MachineStatus::create($deviceData);
+            if($model){
+              DB::commit();          
+              return response()->json(['status_code' => 200, 'message' => 'Machine status created successfully']);
+            }
+          }else {
+          throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to create machine status.', $object->errors());
+          }
+        }
+      catch(\Exception $e){
+        DB::rollback();
+        throw $e;
+      }
+      
     }
 }
