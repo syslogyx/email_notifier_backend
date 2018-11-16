@@ -26,9 +26,16 @@ class MachineController extends Controller
         }
     }
 
-    public function getAllMachines()
+    public function getAllMachines(Request $request)
     {
-        $machine = Machine::get(); 
+        $page = $request->page;
+        $limit = $request->limit;
+        if(($page == null|| $limit == null) || ($page == -1 || $limit == -1)){
+            $machine = Machine::paginate(200);
+        }
+        else{
+            $machine = Machine::paginate($limit);
+        }
 
         if($machine && count($machine) > 0){
             foreach ($machine as $machine_entry ) {
@@ -36,10 +43,10 @@ class MachineController extends Controller
             }
         }
 
-         if ($machine){
-          return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);
+        if ($machine){
+            return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);
         }else{
-          return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
+            return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
         }
     }
 

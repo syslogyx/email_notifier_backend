@@ -157,40 +157,22 @@ class DeviceController extends BaseController {
     }
   }
 
-  public function getAllDevices() {
-    $device = Device::with('machineData')->get();
+  public function getAllDevices(Request $request) {
+      $page = $request->page;
+      $limit = $request->limit;
+      if(($page == null|| $limit == null) || ($page == -1 || $limit == -1)){
+          $device = Device::with('machineData')->paginate(200);
+      }
+      else{
+          $device = Device::with('machineData')->paginate($limit);
+      }
 
-    //   if($device && count($device) > 0){
-    //       foreach ($device as $device_entry ) {
+      if ($device){
+          return response()->json(['status_code' => 200, 'message' => 'Device list', 'data' => $device]);
 
-    //           $machine_data = MachineDeviceAssoc::where("device_id",$device_entry->id)->latest()->first();
-    //           if($machine_data){
-
-    //               if($machine_data->status =='ENGAGE'){
-
-    //                     $machine['id'] = $machine_data->machine_id;
-
-    //                     $machine['machine_name'] = Machine::where("id",$machine_data->machine_id)->pluck('name')->first();
-    //               }
-    //               else{
-    //                     $machine = NULL;
-    //               }
-
-    //             $device_entry->machine = $machine;  
-    //           }
-    //           else{
-    //              $device_entry->machine = NULL;
-    //           }  
-    //       }
-    // }
-
-
-    if ($device){
-      return response()->json(['status_code' => 200, 'message' => 'Device list', 'data' => $device]);
-
-    }else{
-      return response()->json(['status_code' => 404, 'message' => 'Device not found']);
-    }
+      }else{
+          return response()->json(['status_code' => 404, 'message' => 'Device not found']);
+      }
   }
 
   public function getDeviceById($id) {

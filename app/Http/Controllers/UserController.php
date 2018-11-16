@@ -54,16 +54,20 @@ class UserController extends BaseController {
       }
   }
 
-  public function getUsers() {
-    $users = User::with('role')->get();
+  public function getUsers(Request $request) {
+    $page = $request->page;
+    $limit = $request->limit;
+    if(($page == null|| $limit == null) || ($page == -1 || $limit == -1)){
+        $users = User::with('role')->paginate(200);
+    }
+    else{
+        $users = User::with('role')->paginate($limit);
+    }
     if($users && count($users) > 0){
         foreach ($users as $user_entry ) {
-            //$machine_data = User_Machine_Assoc::where("user_id",$user_entry->id)->latest()->first();
-             $machine_data = Machine::where("user_id",$user_entry->id)->first();
+            $machine_data = Machine::where("user_id",$user_entry->id)->first();
             if($machine_data){
                 if($machine_data->status =='ENGAGE'){
-                      // $machine['id'] = $machine_data->machine_id;
-                      // $machine['machine_name'] = Machine::where("id",$machine_data->machine_id)->pluck('name')->first();
                     $machine['id'] = $machine_data->id;
                       $machine['machine_name'] =$machine_data->name;
                 }
