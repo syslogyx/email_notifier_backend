@@ -52,8 +52,8 @@ class MachineStatusController extends BaseController
         }
 
         if(isset($posted_data['user_id'])){
-                $userId=$posted_data['user_id'];
-              $query = MachineStatus::with(array('userEstimation'=>function($que) use ($userId){
+            $userId=$posted_data['user_id'];
+            $query = MachineStatus::with(array('userEstimation'=>function($que) use ($userId){
                 $que->with('reasonData')->where('user_id',$userId)->get();
             }))->with(array('machine'=>function($que) use ($userId){
                 $que->where('user_id',$userId)->get();
@@ -90,5 +90,61 @@ class MachineStatusController extends BaseController
           return response()->json(['status_code' => 404, 'message' => 'Record not found']);
         }
     }
+
+    function generatePdf(Request $request) {
+        $data =$request->req;
+        $data1 = base64_decode($data);
+        $posted_data = [$data1];
+        $posted_data= (array) json_decode($posted_data[0]);
+
+        $query = MachineStatus::with('userEstimation.reasonData','machine')->where('status','0');
+
+        if(isset($posted_data['user_id'])){
+            $userId=$posted_data['user_id'];
+            $query = MachineStatus::with(array('userEstimation'=>function($que) use ($userId){
+                $que->with('reasonData')->where('user_id',$userId)->get();
+            }))->with(array('machine'=>function($que) use ($userId){
+                $que->where('user_id',$userId)->get();
+            }))->where('status','0');
+        }
+
+        if (isset($posted_data["machine_id"])) {
+            $query->where("machine_id", $posted_data["machine_id"]);
+        }
+
+        if (isset($posted_data["from_date"])) {
+            $query->where(DB::raw('CAST(created_at as date)'), '>=', $posted_data["from_date"]);
+        }
+
+        if (isset($posted_data["to_date"])) {
+
+          $query->where(DB::raw('CAST(created_at as date)'), '<=', $posted_data["to_date"]);
+        }
+
+        $machineStatus = $query->get();
+       
+
+        if ($machineStatus){
+          return response()->json(['status_code' => 200, 'message' => 'Machine status list', 'data' => $machineStatus]);
+        }else{
+          return response()->json(['status_code' => 404, 'message' => 'Record not found']);
+        }
+
+       //json_encode(value)
+        // $data = FundInwardLog::with('userInfo', 'fundRequestInfo')->orderBy('date', 'asc')->get();
+
+        // // foreach ($data as $key => $value) {
+        // //     $formatedDueDate = date('d/m/Y', strtotime($value->date));
+        // //     $value->date = $formatedDueDate;
+        // // }
+
+        // view()->share('data', $data);
+
+        // $pdf = PDF::loadView('pdfview');
+
+        // return $pdf->download('Report.pdf');
+    }
+
+
 
 }

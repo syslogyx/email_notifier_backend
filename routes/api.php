@@ -76,6 +76,8 @@ $api->version("v1", function($api) {
     $api->get("get/devicePortStatusByMdchineId/{id}", "App\Http\Controllers\MachineStatusController@GetDevicePortStatus");
     $api->post("filterUserEstimation", "App\Http\Controllers\MachineStatusController@filterOnMachineStatus");
 
+    $api->get("generate_pdf", "App\Http\Controllers\MachineStatusController@generatePdf");
+
     //user estimation API
     $api->post("create/user_estimation", "App\Http\Controllers\UserEstimationController@create");
 
