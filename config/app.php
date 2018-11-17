@@ -185,6 +185,7 @@ return [
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
 
         Zizaco\Entrust\EntrustServiceProvider::class,
+        niklasravnsborg\LaravelPdf\PdfServiceProvider::class,
  
     ],
 
@@ -239,6 +240,8 @@ return [
 
         'Entrust'   => Zizaco\Entrust\EntrustFacade::class,
         'Mailgun' => Bogardo\Mailgun\Facades\Mailgun::class,
+        'PDF' => niklasravnsborg\LaravelPdf\Facades\Pdf::class
+ 
 
     ],
 

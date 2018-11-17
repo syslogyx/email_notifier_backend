@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use App\Device;
 use App\UserEstimation;
+use PDF;
+use DateTime;
 
 class MachineStatusController extends BaseController
 {
@@ -122,29 +124,40 @@ class MachineStatusController extends BaseController
         }
 
         $machineStatus = $query->get();
-       
+        
 
-        if ($machineStatus){
-          return response()->json(['status_code' => 200, 'message' => 'Machine status list', 'data' => $machineStatus]);
-        }else{
-          return response()->json(['status_code' => 404, 'message' => 'Record not found']);
-        }
+        // if ($machineStatus){
+        //   return response()->json(['status_code' => 200, 'message' => 'Machine status list', 'data' => $machineStatus]);
+        // }else{
+        //   return response()->json(['status_code' => 404, 'message' => 'Record not found']);
+        // }
 
-       //json_encode(value)
-        // $data = FundInwardLog::with('userInfo', 'fundRequestInfo')->orderBy('date', 'asc')->get();
+        $machineStatus = $this->calculateActualHourForEachMachine($machineStatus);
 
-        // // foreach ($data as $key => $value) {
-        // //     $formatedDueDate = date('d/m/Y', strtotime($value->date));
-        // //     $value->date = $formatedDueDate;
-        // // }
+        view()->share('data', $machineStatus);
 
-        // view()->share('data', $data);
+        $pdf = PDF::loadView('report/pdfview');
 
-        // $pdf = PDF::loadView('pdfview');
-
-        // return $pdf->download('Report.pdf');
+        return $pdf->download('Report.pdf');
     }
 
+    public function calculateActualHourForEachMachine($machineStatus){
+        for($i = 0; $i < count($machineStatus); $i++) {
+            if($machineStatus[$i]['on_time'] != null){
+                
+                $date1 = new DateTime($machineStatus[$i]['on_time']);
+                $date = new DateTime($machineStatus[$i]['created_at']);
 
+                $totalSecondsDiff = $date1->getTimestamp() - $date->getTimestamp();
+                $machineStatus[$i]['total_actual_second'] =  $totalSecondsDiff;
+
+                $machineStatus[$i]['actual_hour'] = gmdate("H:i:s", $machineStatus[$i]['total_actual_second']);
+                 
+            }else{
+                $machineStatus[$i]['actual_hour'] = null;
+            }
+        }
+        return  $machineStatus;
+    }
 
 }
