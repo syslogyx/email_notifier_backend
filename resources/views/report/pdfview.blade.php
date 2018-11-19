@@ -37,11 +37,11 @@
             <table style="font-family:Calibri (Body);border-collapse: collapse;" width="100%">
                 <thead width="100%">
                     <tr>
-                        <th width="10%" style="text-align:center">Sr No.</th>
+                        <th width="7%" style="text-align:center">Sr No.</th>
                         <th width="15%">Machine Name</th>
                         <th width="10%" style="text-align:center">Off Time</th>
                         <th width="10%" style="text-align:center;">On Time</th>
-                        <th width="10%" style="text-align:center;">Estimation Hour</th>
+                        <th width="13%" style="text-align:center;">Estimation Hour</th>
                         <th width="10%" style="text-align:center">Actual Hour</th>
                         <th width="15%" style="text-align:center">Reason</th>
                         <th width="20%" style="text-align:center">Message</th>
