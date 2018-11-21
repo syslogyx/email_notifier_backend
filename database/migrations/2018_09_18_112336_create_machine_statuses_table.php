@@ -21,7 +21,7 @@ class CreateMachineStatusesTable extends Migration
             $table->foreign('device_id')->references('id')->on('devices')->onUpdate('cascade')->onDelete('cascade');
             $table->string('status');
             $table->string('port');
-            $table->timestamps('on_time')->nullable();
+            $table->timestamp('on_time')->nullable();
             $table->timestamps();
         });
     }

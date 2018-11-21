@@ -218,8 +218,8 @@ class DeviceController extends BaseController {
   }
 
   public function getDeviceStatusReasonAndEmail(){
-     $posted_data = ['{"device_id": "1","port_1":"1"}'];
-     //$posted_data = Input::all();
+     // $posted_data = ['{"device_id": "1","port_1":"1"}'];
+     $posted_data = Input::all();
      $posted_data= (array) json_decode($posted_data[0]);
      //return $posted_data[0];
       
