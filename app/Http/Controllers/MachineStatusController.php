@@ -15,7 +15,13 @@ class MachineStatusController extends BaseController
 {
     public function GetDevicePortStatus($machineId){
         try{
-            $machineStatusData = MachineStatus::with('device','machine')->where('machine_id',$machineId)->latest()->first();
+
+            $deviceIds = Device::where('machine_id',$machineId)->pluck('id');
+            // return $deviceIds;
+            $machineStatusData = MachineStatus::with('device','machine')->where('machine_id',$machineId)->whereIn('device_id', $deviceIds)->orderBy('created_at','asc')->get()->last();
+            // $machineStatusData = collect($machineStatusData1)->last();
+             // return $machineStatusData;
+
             if($machineStatusData){
 
                 $estimationRecord = UserEstimation::where('machine_status_id',$machineStatusData['id'])->latest()->first();

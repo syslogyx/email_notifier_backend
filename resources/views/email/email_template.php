@@ -8,5 +8,5 @@
 
 echo 'Hello User,';
 echo '<br>';
-echo 'Machine "'.$machine_name.'" is in "'.$reason.'" status.';
+echo 'Machine "'.$machine_name.'" is in "'.$status.'" status with "'.$reason.'" message';
 ?>

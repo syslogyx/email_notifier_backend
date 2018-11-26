@@ -218,10 +218,10 @@ class DeviceController extends BaseController {
   }
 
   public function getDeviceStatusReasonAndEmail(){
-     // $posted_data = ['{"device_id": "1","port_1":"1"}'];
-     $posted_data = Input::all();
-     $posted_data= (array) json_decode($posted_data[0]);
-     //return $posted_data[0];
+       // $posted_data = ['{"device_id": "DID01","port_2":"1"}'];
+      $posted_data = Input::all();
+      $posted_data= (array) json_decode($posted_data[0]);
+      //return $posted_data[0];
       
       if($posted_data != ''){
           $data = $posted_data;
@@ -230,19 +230,23 @@ class DeviceController extends BaseController {
           $port_no_key=$port_no_key[1];
 
           $deviceStatusData =[];
-          $deviceStatusData['device_id'] = $posted_data['device_id'];
+          $deviceStatusData['device_id'] = Device::where('name',$posted_data['device_id'])->pluck('id')->first();
           $deviceStatusData['port'] = $port_no_key;
           $deviceStatusData['status'] = $posted_data[$deviceStatusData['port']];
 
           $machine_id = Device::where('id',$deviceStatusData['device_id'])->pluck('machine_id')->first();
 
           $deviceStatusData['machine_id'] = $machine_id;
+          // return $deviceStatusData['machine_id'];
+          // $machineStatusEntry = MachineStatus::where('device_id',$deviceStatusData['device_id'])->where('port',$deviceStatusData['port'])->latest()->first();
 
-          $machineStatusEntry = MachineStatus::where('device_id',$deviceStatusData['device_id'])->where('port',$deviceStatusData['port'])->latest()->first();
+          $machineStatusEntry = MachineStatus::where('device_id',$deviceStatusData['device_id'])->where('port',$deviceStatusData['port'])->orderBy('created_at','asc')->get()->last();
+
+           // $machineStatusEntry = collect($machineStatusEntry1)->last();
            
-          if( $machineStatusEntry['status']!= $deviceStatusData['status']){
-              //if(!$machineStatusEntry){
-               $this->updateDeviceStatus($deviceStatusData);
+          if($machineStatusEntry['status']!= $deviceStatusData['status']){
+                //if(!$machineStatusEntry){
+                $this->updateDeviceStatus($deviceStatusData);
 
                 $portNoColumnName = $deviceStatusData['port'].'_'.$deviceStatusData['status'].'_reason';
                 $object = Device::find($deviceStatusData['device_id']);
@@ -257,6 +261,7 @@ class DeviceController extends BaseController {
                     $data['machine_name'] = $machine['name'];
                     $data['email_ids'] = $machine['email_ids'].','.$assignUserEmail;
                     $data['reason'] = $statusReason;
+                    $data['status'] = $deviceStatusData['status'];
 
                     $this->sendMailToUsers($data);
 
@@ -301,9 +306,12 @@ class DeviceController extends BaseController {
           $deviceData['on_time'] = NULL;
           if($deviceData['status'] == '1'){
 
-              $machineStatusData = MachineStatus::with('userEstimation')->where([['machine_id',$deviceData['machine_id']],['device_id',$deviceData['device_id']]])->latest()->first();
-               // return $machineStatusData;
-              
+              // $machineStatusData = MachineStatus::with('userEstimation')->where([['machine_id',$deviceData['machine_id']],['device_id',$deviceData['device_id']]])->latest()->first();
+
+               $machineStatusData1 = MachineStatus::with('userEstimation')->where([['machine_id',$deviceData['machine_id']],['device_id',$deviceData['device_id']]])->orderBy('created_at','asc')->get();
+
+              $machineStatusData = collect($machineStatusData1)->last();
+
               if($machineStatusData){
                 $machineStatusData['on_time'] = new DateTime();
                 $machineModel = MachineStatus::where('id',$machineStatusData['id'])->update(['on_time'=>$machineStatusData['on_time']]);
