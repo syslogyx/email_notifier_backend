@@ -80,8 +80,6 @@ class UserMachineAssocController extends Controller
 
     public function getMachineIdByUserId($id) {
         $user=User_Machine_Assoc::where("user_id",$id)->latest()->first();
-        // print_r($user);
-        // die();
 
         if($user && $user['status'] == 'ENGAGE'){
 
@@ -158,6 +156,25 @@ class UserMachineAssocController extends Controller
             // }
         }else{
             return response()->json(['status_code' => 404, 'message' => 'Machine unable to reset.']);
+        }
+    }
+
+    public function getAllAssignMachinesRecordsByUSerId($user_id)
+    {
+        $machine = User_Machine_Assoc::where('user_id',$user_id)->distinct()->select('machine_id')->get();
+
+        if($machine && count($machine) > 0){
+            foreach ($machine as $machines) {
+              
+                $machines['name'] = Machine::where('id', $machines['machine_id'])->pluck('name')->first();
+                $machines['id'] =  Machine::where('id', $machines['machine_id'])->pluck('id')->first();
+            }
+        }
+
+         if ($machine){
+          return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);
+        }else{
+          return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
         }
     }
 }

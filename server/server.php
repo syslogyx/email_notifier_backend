@@ -99,7 +99,7 @@ function sendEmail ($request){
 
   // Decode the response
   $responseData = json_decode($response, TRUE);
-  if($responseData["status_code"]==200 || $responseData["status_code"]==201){
+  if($responseData["status_code"]==200 || $responseData["status_code"]==201 || $responseData["status_code"]==202){
     return ("Success".chr(0x0D));
   }else{
      return 'Fail';

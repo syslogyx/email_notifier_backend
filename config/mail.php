@@ -29,7 +29,8 @@ return [
     |
     */
 
-    'host' => env('MAIL_HOST', 'mail.syslogic.in'),
+    'host' => env('MAIL_HOST', 'smtp.gmail.com'),
+    //'host' => env('MAIL_HOST', 'mail.syslogyx.com'),
 
     /*
     |--------------------------------------------------------------------------
@@ -43,6 +44,7 @@ return [
     */
 
     'port' => env('MAIL_PORT', 587),
+    //'port' => env('MAIL_PORT', 25),
 
     /*
     |--------------------------------------------------------------------------
@@ -72,6 +74,7 @@ return [
     */
 
     'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+    //'encryption' => env('MAIL_ENCRYPTION', false),
 
     /*
     |--------------------------------------------------------------------------

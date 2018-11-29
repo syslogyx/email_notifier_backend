@@ -39,12 +39,12 @@
                     <tr>
                         <th width="7%" style="text-align:center">Sr No.</th>
                         <th width="15%">Machine Name</th>
-                        <th width="10%" style="text-align:center">Off Time</th>
-                        <th width="10%" style="text-align:center;">On Time</th>
-                        <th width="13%" style="text-align:center;">Estimation Hour</th>
-                        <th width="10%" style="text-align:center">Actual Hour</th>
-                        <th width="15%" style="text-align:center">Reason</th>
-                        <th width="20%" style="text-align:center">Message</th>
+                        <th width="13%" style="text-align:center">Off Time</th>
+                        <th width="13%" style="text-align:center;">On Time</th>
+                        <th width="14%" style="text-align:center;">Estimation Hour</th>
+                        <th width="11%" style="text-align:center">Actual Hour</th>
+                        <th width="13%" style="text-align:center">Reason</th>
+                        <th width="14%" style="text-align:center">Message</th>
                     </tr>
                 </thead>
                 <tbody>

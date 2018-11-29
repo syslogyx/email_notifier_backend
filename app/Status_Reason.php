@@ -13,7 +13,7 @@ class Status_Reason extends Model
       'status', 'reason','device_id','port_no'
   ];
   private $rules = array(
-      'status' => 'required',
+      'status' => 'nullable',
       'reason' => 'required',
       'device_id' =>'nullable',
       'port_no' =>'nullable'

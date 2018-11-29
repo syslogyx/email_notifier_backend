@@ -27,9 +27,6 @@ class CreateRolesTable extends Migration
             ),
             array(
                 "name" => "Operator"
-            ),
-            array(
-                "name" => "Sticker"
             )
         );
         

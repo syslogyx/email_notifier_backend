@@ -15,25 +15,30 @@ class UserEstimationController extends Controller
     public function create()
     {
         try{
+
             DB::beginTransaction();
             $posted_data = Input::all();
 
             $object = new UserEstimation();
 
             $machineStatus = MachineStatus::where("id",$posted_data['machine_status_id'])->first();
-            
-            // if ($object->validate($posted_data)) {
+
+            if ($machineStatus){
 
                 $previousRecord = UserEstimation::where('machine_status_id',$posted_data['machine_status_id'])->latest()->first();
-
+ 
                 if(!$previousRecord){
 
                     //$newMachineStatusData = MachineStatus::with('device')->where('device_id',$machineStatus['device_id'])->where('port',$machineStatus['port'])->latest()->first();
-                    $newMachineStatusData = MachineStatus::with('device','machine')->where('machine_id',$machineStatus['machine_id'])->where('device_id',$machineStatus['device_id'])->where('port',$machineStatus['port'])->get()->last();
-                    // print_r($newMachineStatusData);
-                    // die();
+                    $newMachineStatusData = MachineStatus::with('device','machine')->where('machine_id',$machineStatus['machine_id'])->where('device_id',$machineStatus['device_id'])->get()->last();
                     
-                    if($newMachineStatusData['status'] == '0'){
+                    
+                    $machineStatuscolm =$newMachineStatusData['port'].'_'.$newMachineStatusData['status'].'_status';
+             
+                    $machineStatus= $newMachineStatusData['device'][$machineStatuscolm];
+                    // return $machineStatus;
+
+                    if($machineStatus == 'OFF'){
 
                         $reason_column =$newMachineStatusData['port'].'_'.$newMachineStatusData['status'].'_reason';
 
@@ -62,9 +67,9 @@ class UserEstimationController extends Controller
                 }else{
                     return response()->json(['status_code' => 201, 'message' => 'User estimation record already found']);
                 } 
-            // } else {
-            //   throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to add user estimation.', $object->errors());
-            // }
+            } else {
+              return response()->json(['status_code' => 401, 'message' => 'machine status record not found']);
+            }
         }
         catch(\Exception $e){
             DB::rollback();

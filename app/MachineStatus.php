@@ -43,4 +43,6 @@ class MachineStatus extends Model
     public function userEstimation() {
         return $this->hasMany('App\UserEstimation');
     }
+
+   
 }

@@ -56,7 +56,7 @@ $api->version("v1", function($api) {
     $api->get("get/machines", "App\Http\Controllers\MachineController@getMachines");
     $api->get("get/allMachines", "App\Http\Controllers\MachineController@getAllMachines");
     $api->get("get/machine/{id}", "App\Http\Controllers\MachineController@getMachineById"); 
-    $api->get("get/all_assign_machine/{user_id}", "App\Http\Controllers\MachineController@getAllAssignMachinesByUSerId"); 
+    $api->get("get/all_assign_machine/{user_id}", "App\Http\Controllers\MachineController@getAllAssignMachinesByUSerId");  
 
     // machine and device assoc api
     $api->post("assign/deviceToMachine", "App\Http\Controllers\MachineDeviceAssocController@assignDeviceToMachine");
@@ -71,6 +71,7 @@ $api->version("v1", function($api) {
     $api->get("get/userIdByMachineId/{id}", "App\Http\Controllers\UserMachineAssocController@getUserIdByMachineId");
     $api->get("reset/machineById/{id}", "App\Http\Controllers\UserMachineAssocController@resetMachineById");
     $api->get("reset/machineByUserId/{id}", "App\Http\Controllers\UserMachineAssocController@resetMachineByUserId");
+    $api->get("get/all_assigned_machine_list/{user_id}", "App\Http\Controllers\UserMachineAssocController@getAllAssignMachinesRecordsByUSerId");
 
     //machine status API
     $api->get("get/devicePortStatusByMdchineId/{id}", "App\Http\Controllers\MachineStatusController@GetDevicePortStatus");

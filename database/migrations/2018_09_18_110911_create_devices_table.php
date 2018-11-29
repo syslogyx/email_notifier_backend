@@ -21,14 +21,26 @@ class CreateDevicesTable extends Migration
             $table->integer('machine_id')->nullable()->unsigned();
             $table->foreign('machine_id')->references('id')->on('machines');
 
+            $table->string('port_1_0_status')->nullable();
+
             $table->integer('port_1_0_reason')->unsigned();
             $table->foreign('port_1_0_reason')->references('id')->on('status__reasons')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->string('port_1_1_status')->nullable();
+
             $table->integer('port_1_1_reason')->unsigned();
             $table->foreign('port_1_1_reason')->references('id')->on('status__reasons')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->string('port_2_0_status')->nullable();
+
             $table->integer('port_2_0_reason')->unsigned();
             $table->foreign('port_2_0_reason')->references('id')->on('status__reasons')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->string('port_2_1_status')->nullable();
+            
             $table->integer('port_2_1_reason')->unsigned();
             $table->foreign('port_2_1_reason')->references('id')->on('status__reasons')->onUpdate('cascade')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

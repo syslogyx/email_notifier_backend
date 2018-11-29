@@ -17,16 +17,18 @@ class MachineStatusController extends BaseController
         try{
 
             $deviceIds = Device::where('machine_id',$machineId)->pluck('id');
-            // return $deviceIds;
+
             $machineStatusData = MachineStatus::with('device','machine')->where('machine_id',$machineId)->whereIn('device_id', $deviceIds)->orderBy('created_at','asc')->get()->last();
-            // $machineStatusData = collect($machineStatusData1)->last();
-             // return $machineStatusData;
+            
+             $machineStatuscolm =$machineStatusData['port'].'_'.$machineStatusData['status'].'_status';
+             
+             $machineStatus= $machineStatusData['device'][$machineStatuscolm];
 
             if($machineStatusData){
 
                 $estimationRecord = UserEstimation::where('machine_status_id',$machineStatusData['id'])->latest()->first();
              
-                if ($machineStatusData['status'] == '0'){
+                if ($machineStatus == 'OFF'){
                     if(!$estimationRecord){
                         $machineStatusData['flag'] = 'True';
                         return response()->json(['status_code' => 200, 'message' => 'Machine Status list', 'data' => $machineStatusData]);
@@ -47,49 +49,43 @@ class MachineStatusController extends BaseController
             DB::rollback();
             throw $e;
         }
-
     }
 
     public function filterOnMachineStatus(Request $request){
         $page = $request->page;
         $limit = $request->limit;
         $posted_data = Input::all();
-        $query = MachineStatus::with('userEstimation.reasonData','machine')->where('status','0');
-        if (Input::get() == "" || Input::get() == null) {
+        $query = MachineStatus::with('userEstimation.reasonData','machine.user');
+        if ($posted_data == "" || $posted_data == null) {
             $query->get();
         }
 
         if(isset($posted_data['user_id'])){
             $userId=$posted_data['user_id'];
-            $query = MachineStatus::with(array('userEstimation'=>function($que) use ($userId){
+            $query = MachineStatus::with('machine.user')->with(array('userEstimation'=>function($que) use ($userId){
                 $que->with('reasonData')->where('user_id',$userId)->get();
-            }))->with(array('machine'=>function($que) use ($userId){
+            }))->with('machine.user')->with(array('machine'=>function($que) use ($userId){
                 $que->where('user_id',$userId)->get();
-            }))->where('status','0');
+            }));
         }
 
-        if (Input::get("machine_id")) {
-            $query->where("machine_id", Input::get("machine_id"));
+        if (isset($posted_data["machine_id"])) {
+            $query->where("machine_id", $posted_data["machine_id"]);
         }
 
-        if (Input::get("from_date")) {
-            $query->where(DB::raw('CAST(created_at as date)'), '>=', Input::get("from_date"));
+        if (isset($posted_data["from_date"])) {
+            $query->where(DB::raw('CAST(created_at as date)'), '>=', $posted_data["from_date"]);
         }
 
-        if (Input::get("to_date")) {
+        if (isset($posted_data["to_date"])) {
 
-          $query->where(DB::raw('CAST(created_at as date)'), '<=', Input::get("to_date"));
+          $query->where(DB::raw('CAST(created_at as date)'), '<=', $posted_data["to_date"]);
         }
-
-        // if (Input::get("from_date") && Input::get("to_date")) {
-        //     $query->where("created_at", ">=", Input::get("from_date"))
-        //             ->where("created_at", "<=", Input::get("to_date"));
-        // }
 
         if (($page != null && $page != 0) && ($limit != null && $limit != 0)) {
-            $machineStatus = $query->paginate($limit);
+            $machineStatus = $query->orderBy('updated_at','desc')->paginate($limit);
         } else {
-            $machineStatus = $query->paginate(50);
+            $machineStatus = $query->orderBy('updated_at','desc')->paginate(50);
         }
 
         if ($machineStatus->first()){
@@ -105,15 +101,15 @@ class MachineStatusController extends BaseController
         $posted_data = [$data1];
         $posted_data= (array) json_decode($posted_data[0]);
 
-        $query = MachineStatus::with('userEstimation.reasonData','machine')->where('status','0');
+        $query = MachineStatus::with('userEstimation.reasonData','machine.user');
 
         if(isset($posted_data['user_id'])){
             $userId=$posted_data['user_id'];
-            $query = MachineStatus::with(array('userEstimation'=>function($que) use ($userId){
+            $query = MachineStatus::with('machine.user')->with(array('userEstimation'=>function($que) use ($userId){
                 $que->with('reasonData')->where('user_id',$userId)->get();
-            }))->with(array('machine'=>function($que) use ($userId){
+            }))->with('machine.user')->with(array('machine'=>function($que) use ($userId){
                 $que->where('user_id',$userId)->get();
-            }))->where('status','0');
+            }));
         }
 
         if (isset($posted_data["machine_id"])) {
@@ -130,13 +126,6 @@ class MachineStatusController extends BaseController
         }
 
         $machineStatus = $query->get();
-        
-
-        // if ($machineStatus){
-        //   return response()->json(['status_code' => 200, 'message' => 'Machine status list', 'data' => $machineStatus]);
-        // }else{
-        //   return response()->json(['status_code' => 404, 'message' => 'Record not found']);
-        // }
 
         $machineStatus = $this->calculateActualHourForEachMachine($machineStatus);
 
