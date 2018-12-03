@@ -8,10 +8,13 @@ set_time_limit(0);
 /* Turn on implicit output flushing so we see what we're getting
  * as it comes in. */
 ob_implicit_flush();
+/*live server credentials*/
+// $address = '115.124.122.143';
+// $port = 9001;
+// $server_api = "https://enotifierapi.syslogyx.com/api";
 
 $address = '172.16.1.97';
 $port = 9001;
-
 $server_api = "http://172.16.1.97:9000/api";
 // $server_api = "http://172.16.1.91:8088/smarttbm_new/api/dcd";
 
