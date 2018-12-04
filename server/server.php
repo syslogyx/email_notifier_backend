@@ -1,79 +1,119 @@
-#!/usr/local/bin/php -q
 <?php
 error_reporting(E_ALL);
 
 /* Allow the script to hang around waiting for connections. */
 set_time_limit(0);
 
-/* Turn on implicit output flushing so we see what we're getting
- * as it comes in. */
+/* Turn on implicit output flushing so we see what we're getting as it comes in. */
 ob_implicit_flush();
-/*live server credentials*/
-// $address = '115.124.122.143';
-// $port = 9001;
-// $server_api = "https://enotifierapi.syslogyx.com/api";
 
-$address = '172.16.1.97';
 $port = 9001;
-$server_api = "http://172.16.1.97:9000/api";
-// $server_api = "http://172.16.1.91:8088/smarttbm_new/api/dcd";
+ 
+  // $address = '115.124.122.143';
+  $address = '172.16.1.97';
 
-if (($sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) === false) {
-    echo "socket_create() failed: reason: " . socket_strerror(socket_last_error()) . "\n";
-}
+  // $server_api = "http://enfapi.syslogyx.com/api";
+  $server_api = "http://172.16.1.97:9000/api";
 
-if (socket_bind($sock, $address, $port) === false) {
-    echo "socket_bind() failed: reason: " . socket_strerror(socket_last_error($sock)) . "\n";
-}
+// create a streaming socket, of type TCP/IP
+$sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-if (socket_listen($sock, 5) === false) {
-    echo "socket_listen() failed: reason: " . socket_strerror(socket_last_error($sock)) . "\n";
-}
+socket_set_option($sock, SOL_SOCKET, SO_REUSEADDR, 1);
 
-do {
-    if (($msgsock = socket_accept($sock)) === false) {
-        echo "socket_accept() failed: reason: " . socket_strerror(socket_last_error($sock)) . "\n";
-        break;
+socket_bind($sock, $address, $port);
+
+socket_listen($sock);
+
+// create a list of all the clients that will be connected to us..
+// add the listening socket to this list
+$clients = array($sock);
+
+while (true)
+{
+    // create a copy, so $clients doesn't get modified by socket_select()
+    $read = $clients;
+    $write = null;
+    $except = null;
+
+    // get a list of all the clients that have data to be read from
+    // if there are no clients with data, go to next iteration
+    if (socket_select($read, $write, $except, 0) < 1)
+        continue;
+
+    // check if there is a client trying to connect
+    if (in_array($sock, $read))
+    {
+        $clients[] = $newsock = socket_accept($sock);
+
+        //socket_write($newsock, "There are ".(count($clients) - 1)." client(s) connected to the server\n");
+
+        socket_getpeername($newsock, $ip, $port);
+        echo "New client connected: {$ip}\n";
+
+        $key = array_search($sock, $read);
+        unset($read[$key]);
     }
-    /* Send instructions. */
-    $msg = "\nWelcome to the PHP Test Server. \n" .
-        "To quit, type 'quit'. To shut down the server type 'shutdown'.\n";
-    //socket_write($msgsock, $msg, strlen($msg));
 
-    do {
-        if (false === ($buf = socket_read($msgsock, 2048, PHP_NORMAL_READ))) {
-            echo "socket_read() failed: reason: " . socket_strerror(socket_last_error($msgsock)) . "\n";
-            break 2;
+    // loop through all the clients that have data to read from
+
+    foreach ($read as $read_sock)
+    {
+        // read until newline or 1024 bytes
+        // socket_read while show errors when the client is disconnected, so silence the error messages
+        $data = @socket_read($read_sock, 1024, PHP_NORMAL_READ);
+
+        // check if the client is disconnected
+        if ($data === false)
+        {
+            // remove client for $clients array
+            $key = array_search($read_sock, $clients);
+            unset($clients[$key]);
+            echo "Client disconnected.\n";
+            continue;
         }
-        if ($buf == "\r\n") {
-          if (!$buf = trim($buf)) {
-              continue;
-          }
-          if ($buf == 'quit') {
-              break;
-          }
-          if ($buf == 'shutdown') {
-              socket_close($msgsock);
-              break 2;
-          }
-        }
-       // $talkback = "PHP: You said '$buf'.\n";
-        //socket_write($msgsock, $talkback, strlen($talkback));
-        $res = sendEmail($buf);
-        print_r($res);
-        //echo $res;
-         socket_write($msgsock, $res, strlen($res));
 
-    } while (true);
-    socket_close($msgsock);
-} while (true);
+        $data = trim($data);
+         
+        
+        if (!empty($data))
+        {
 
+          echo "{$data}\n";
+
+          sendEmail($data,$read_sock);
+          //print_r($res);
+          
+
+           // do sth..
+
+            //send some message to listening socket
+           // socket_write($read_sock, '');
+
+            // send this to all the clients in the $clients array (except the first one, which is a listening socket)
+            // foreach ($clients as $send_sock)
+            // {
+            //     if ($send_sock == $sock){                  
+            //       socket_write($read_sock, $res, strlen($res));
+            //       continue;
+            //     }
+                    
+
+            // } // end of broadcast foreach
+          
+       }
+
+        
+
+        
+
+    } // end of reading foreach
+}
+
+// close the listening socket
 socket_close($sock);
 
-
-
-function sendEmail ($request){
-  echo "$request\n";
+function sendEmail ($request,$sock){
+  // echo "$request\n";
   global $server_api;
 
   // $request = ['{"device_id": "3","port_1":"1"}'];
@@ -92,21 +132,27 @@ function sendEmail ($request){
     CURLOPT_PROXY => false
   ));
 
-  // Send the request
-  $response = curl_exec($ch);
 
-  // Check for errors
-  if($response === FALSE){
-      die(curl_error($ch));
-  }
 
-  // Decode the response
-  $responseData = json_decode($response, TRUE);
-  if($responseData["status_code"]==200 || $responseData["status_code"]==201 || $responseData["status_code"]==202){
-    return ("Success".chr(0x0D));
-  }else{
-     return 'Fail';
-  }
-  return $responseData;
+
+    if( ! $response = curl_exec($ch)){ 
+       trigger_error(curl_error($ch)); 
+       curl_close($ch);
+    }else{
+         curl_close($ch);
+        $responseData = json_decode($response, TRUE);
+        if($responseData["status_code"]==200 || $responseData["status_code"]==201 || $responseData["status_code"]==202){
+            $res= "Success".chr(0x0D);
+        }else{
+            $res= 'Fail'.chr(0x0D);
+        }
+        print_r($responseData);
+        print_r($res);
+        socket_write($sock, $res, strlen($res));
+    }
+    
+  
 }
+
+
 ?>
