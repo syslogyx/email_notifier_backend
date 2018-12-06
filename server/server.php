@@ -9,11 +9,11 @@ ob_implicit_flush();
 
 $port = 9001;
  
-  // $address = '115.124.122.143';
-  $address = '172.16.1.97';
+   // $address = '115.124.122.143';
+   $address = '172.16.1.97';
 
-  // $server_api = "http://enfapi.syslogyx.com/api";
-  $server_api = "http://172.16.1.97:9000/api";
+      // $server_api = "http://enfapi.syslogyx.com/api";
+   $server_api = "http://172.16.1.97:9000/api";
 
 // create a streaming socket, of type TCP/IP
 $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -112,11 +112,10 @@ while (true)
 // close the listening socket
 socket_close($sock);
 
-function sendEmail ($request,$sock){
+function sendEmail($request,$sock){
   // echo "$request\n";
   global $server_api;
 
-  // $request = ['{"device_id": "3","port_1":"1"}'];
   
   $ch = curl_init($server_api.'/get/devicesInfo');
   curl_setopt_array($ch, array(
@@ -132,25 +131,21 @@ function sendEmail ($request,$sock){
     CURLOPT_PROXY => false
   ));
 
-
-
-
     if( ! $response = curl_exec($ch)){ 
        trigger_error(curl_error($ch)); 
        curl_close($ch);
     }else{
          curl_close($ch);
         $responseData = json_decode($response, TRUE);
-        if($responseData["status_code"]==200 || $responseData["status_code"]==201 || $responseData["status_code"]==202){
-            $res= "Success".chr(0x0D);
-        }else{
+        print_r($responseData);
+        $res= "Success".chr(0x0D);
+        if($responseData["status_code"]==405){            
             $res= 'Fail'.chr(0x0D);
         }
-        print_r($responseData);
+        
         print_r($res);
         socket_write($sock, $res, strlen($res));
     }
-    
   
 }
 

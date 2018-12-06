@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-echo 'Hello User,';
+echo 'Hello All,';
 echo '<br>';
 echo 'Machine "'.$machine_name.'" is in "'.$status.'" status with "'.$reason.'" message';
 ?>

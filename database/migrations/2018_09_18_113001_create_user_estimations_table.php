@@ -22,7 +22,7 @@ class CreateUserEstimationsTable extends Migration
             $table->integer('reason')->unsigned();
             $table->foreign('reason')->references('id')->on('status__reasons')->onUpdate('cascade')->onDelete('cascade');
             $table->string('msg');
-            $table->integer('hour')->nullable();
+            $table->string('hour');
             $table->timestamps();
         });
     }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\DB;
 use App\Machine;
 use App\User;
+use App\Device;
 
 class UserMachineAssocController extends Controller
 {
@@ -15,17 +16,16 @@ class UserMachineAssocController extends Controller
         try{
             DB::beginTransaction();
             $posted_data = Input::all();
-            
-
+        
             $assignedUser = Machine::where('user_id',$posted_data['user_id'])->where('id','<>',$posted_data['machine_id'])->first();
+            $assignDevicesToMachien = Device::where("machine_id",$posted_data['machine_id'])->get();
+            // return $assignDevicesToMachien;
 
-            if($assignedUser){
-                $this->resetMachineById($assignedUser['id']);
-            }
-           // else{
+            if(count($assignDevicesToMachien)!= 0){
 
-            // print_r($assignedUser);
-            // die();
+                if($assignedUser){
+                    $this->resetMachineById($assignedUser['id']);
+                }
 
                 $object = new User_Machine_Assoc();
 
@@ -51,7 +51,9 @@ class UserMachineAssocController extends Controller
                 } else {
                     throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to assign.', $object->errors());
                 }
-          //  }
+            }else{
+                return response()->json(['status_code' => 404, 'message' => 'Unable to assign machine. First assign device to this machine.']);
+            }
         }
         catch(\Exception $e){
             DB::rollback();
@@ -79,12 +81,13 @@ class UserMachineAssocController extends Controller
     */
 
     public function getMachineIdByUserId($id) {
-        $user=User_Machine_Assoc::where("user_id",$id)->latest()->first();
+        $user=User_Machine_Assoc::with('machine')->where("user_id",$id)->latest()->first();
 
         if($user && $user['status'] == 'ENGAGE'){
 
             $user['machine_name'] = Machine::where("id",$user['machine_id'])->pluck('name')->first();
             $user['status'] = Machine::where("id",$user['machine_id'])->pluck('status')->first();
+            $user['device_name'] = Device::where('machine_id',$user['machine_id'])->pluck('name');
 
             if($user['machine_id']!=null){
                 return response()->json(['status_code' => 200, 'message' => 'Machine info', 'data' => $user]);
@@ -116,7 +119,7 @@ class UserMachineAssocController extends Controller
 
         $machineData = Machine::get();
 
-        $data = User_Machine_Assoc::where("machine_id",$id)->where("status","ENGAGE")->latest()->first();
+        $data = User_Machine_Assoc::where("machine_id",$id)->where("status","ENGAGE")->orderBy('created_at','asc')->get()->last();
 
         if ($machine && $data){
             $posted_data['machine_id']=$data['machine_id'];

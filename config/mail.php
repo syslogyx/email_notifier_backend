@@ -58,8 +58,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'sonal@syslogic.in'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => env('MAIL_FROM_ADDRESS', 'admsyslogyx@gmail.com'),
+        'name' => env('MAIL_FROM_NAME', 'Admin'),
     ],
 
     /*

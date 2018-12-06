@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Device;
 use DB;
@@ -332,12 +330,16 @@ class DeviceController extends BaseController {
   }
 
   public function getDeviceStatusReasonAndEmail(){ 
-       // $posted_data = ['{"device_id": "DID01","port_2":"0"}'];
+    try{
+
+      //$posted_data = ['{"device_id":"DID01","port_1":"1"}'];
       $posted_data = Input::all();
       $posted_data= (array) json_decode($posted_data[0]);
       
-      if($posted_data != ''){
+      if(isset($posted_data)){
+
           $port_no_key = array_keys($posted_data);
+
           $port_no_key=$port_no_key[1];
 
           $status_reason_col_name = $port_no_key.'_'.$posted_data[$port_no_key].'_reason';
@@ -352,7 +354,6 @@ class DeviceController extends BaseController {
               $deviceStatusData['device_id'] = $device_data['id'];
               $deviceStatusData['port'] = $port_no_key;
               $deviceStatusData['status'] = $posted_data[$deviceStatusData['port']];
-
               $deviceStatusData['machine_id'] = $device_data['machine_id'];
 
               $status_col_name = $deviceStatusData['port'].'_'.$deviceStatusData['status'].'_status';
@@ -361,8 +362,7 @@ class DeviceController extends BaseController {
 
               $machineStatusEntry = MachineStatus::where('machine_id',$deviceStatusData['machine_id'])->where('device_id',$deviceStatusData['device_id'])->orderBy('created_at','asc')->get()->last();
 
-              if(($machineStatusEntry['port'] == $deviceStatusData['port'] && $machineStatusEntry['status'] != $deviceStatusData['status']) || ($machineStatusEntry['port'] != $deviceStatusData['port']))
-              {
+              if(($machineStatusEntry['port'] == $deviceStatusData['port'] && $machineStatusEntry['status'] != $deviceStatusData['status']) || ($machineStatusEntry['port'] != $deviceStatusData['port'])){
                   $this->updateDeviceStatus($deviceStatusData);
 
                   $portNoColumnName = $deviceStatusData['port'].'_'.$deviceStatusData['status'].'_reason';
@@ -390,46 +390,49 @@ class DeviceController extends BaseController {
                       if($data){
                           return response()->json(['status_code' => 200, 'message' => 'Device information found successfully', 'data' => $data]);
                       }else{
-                          return response()->json(['status_code' => 404, 'message' => 'Device information not found']);
+                          return response()->json(['status_code' => 203, 'message' => 'Device information not found']);
                       }
                   }else {
-                      throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to get  device information.', $object->errors());
+                      // throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to get  device information.', $object->errors());
+
+                      return response()->json(['status_code' => 204, 'message' => 'Unable to get  device information']);
                   }
-              }
-              else{
+              }else{
                   return response()->json(['status_code' => 201, 'message' => 'Record already found','reason' =>'Latest record already found']);
               }
-          }
-          else{
+          }else{
               return response()->json(['status_code' => 202, 'message' => 'Status reason not found']);
           }      
+      }else{
+          return response()->json(['status_code' => 205, 'message' => 'Device string was not found']);
       }
+    }catch(\Exception $e){
+          //throw $e;
+         return response()->json(['status_code' => 405, 'message' => 'Inappropriate string']);
+    }
   }
 
   function sendMailToUsers($model) {
 
-        config(['mail.username' => 'yogeshj.vyako@gmail.com',
-                'mail.password' => 'k@de&*vm']);
-        
-        // config(['mail.username' => 'sonal@syslogyx.com',
-        //             'mail.password' => 'sonal']);
-       
-        $email = explode(',', $model['email_ids']);
-       
-        $subjectMsg = 'Machine('.$model['machine_name'].') - status';
+      config(['mail.username' => 'yogeshj.vyako@gmail.com',
+              'mail.password' => 'k@de&*vm']);
+      
+      $email = explode(',', $model['email_ids']);
+     
+      $subjectMsg = 'Machine('.$model['machine_name'].') - status';
 
-        Mail::send('email.email_template', $model, function($message) use ($email,$subjectMsg) {        
-            $message->to($email);
-            $message->subject($subjectMsg);
-        });
+      Mail::send('email.email_template', $model, function($message) use ($email,$subjectMsg) {        
+          $message->to($email);
+          $message->subject($subjectMsg);
+      });
 
-        if (count(Mail::failures()) > 0) {
-            $errors = 'Failed to send email, please try again.';
-            return $errors;
-        }
-    }
+      if (count(Mail::failures()) > 0) {
+          $errors = 'Failed to send email, please try again.';
+          return $errors;
+      }
+  }
 
-    function updateDeviceStatus($deviceData){
+  function updateDeviceStatus($deviceData){
         try{
             DB::beginTransaction();
             $deviceData['on_time'] = NULL;
