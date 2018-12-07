@@ -113,10 +113,11 @@ class MachineController extends Controller
           DB::beginTransaction();
           $posted_data = Input::all();
 
-          $machine=Machine::where('id',  $posted_data['machine_id'])->pluck('status')->first();
+          $machine=Machine::where('id',  $posted_data['id'])->first();
 
-          if($machine=='ENGAGE'){
-            return response()->json(['status_code' => 202, 'message' => 'Machine is assigned to user, first reset machine from user']);
+          if($machine['status']=='ENGAGE'){
+            $user==User::where('id',  $machine['user_id'])->pluck('name')->first();
+            return response()->json(['status_code' => 202, 'message' => $machine['name'].' is assigned to '.$user.', first reset machine from '.$user]);
           }
 
           $object = Machine::find($posted_data['id']);
