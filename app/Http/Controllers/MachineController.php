@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use App\Device;
 use App\MachineDeviceAssoc;
+use App\User;
 
 class MachineController extends Controller
 {
@@ -116,7 +117,7 @@ class MachineController extends Controller
           $machine=Machine::where('id',  $posted_data['id'])->first();
 
           if($machine['status']=='ENGAGE'){
-            $user==User::where('id',  $machine['user_id'])->pluck('name')->first();
+            $user=User::where('id',  $machine['user_id'])->pluck('name')->first();
             return response()->json(['status_code' => 202, 'message' => $machine['name'].' is assigned to '.$user.', first reset machine from '.$user]);
           }
 
