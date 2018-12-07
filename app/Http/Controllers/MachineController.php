@@ -86,7 +86,7 @@ class MachineController extends Controller
                   return $res;
                 }
               }
-              DB::commit();          
+              DB::commit();
               return response()->json(['status_code' => 200, 'message' => 'Machine created successfully', 'data' => $model]);
             }
           }
@@ -113,10 +113,16 @@ class MachineController extends Controller
           DB::beginTransaction();
           $posted_data = Input::all();
 
+          $machine=Machine::where('id',  $posted_data['machine_id'])->pluck('status')->first();
+
+          if($machine=='ENGAGE'){
+            return response()->json(['status_code' => 202, 'message' => 'Machine is assigned to user, first reset machine from user']);
+          }
+
           $object = Machine::find($posted_data['id']);
 
           $oldDeviceList = $posted_data["old_device_list"];
-          
+
           $newDeviceList = $posted_data["new_device_list"];
 
           if(isset($oldDeviceList) ){
@@ -126,7 +132,7 @@ class MachineController extends Controller
               $oldDevice=[];
               $newDevice=$newDeviceList;
           }
-       
+
           unset($posted_data["old_device_list"]);
           unset($posted_data["new_device_list"]);
 
@@ -138,7 +144,7 @@ class MachineController extends Controller
                         $this->resetDeviceById($value);
                       }
                   }
-                
+
                   foreach ($newDevice as $key => $value) {
                       $data = [];
                       $data["machine_id"] = $posted_data['id'];
@@ -149,9 +155,9 @@ class MachineController extends Controller
                           return $result;
                       }
                   }
-                
+
                   $res = Machine::find($posted_data['id']);
-                  DB::commit();   
+                  DB::commit();
                   return response()->json(['status_code' => 200, 'message' => 'Machine updated successfully', 'data' => $res]);
               }else{
                   return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
@@ -188,7 +194,7 @@ class MachineController extends Controller
 
           DB::beginTransaction();
           $posted_data = $data;
-         
+
           $object = new MachineDeviceAssoc();
 
           $find= Device::where('id',$posted_data['device_id'])->first();
@@ -243,7 +249,7 @@ class MachineController extends Controller
 
     public function getAllAssignMachinesByUSerId($user_id)
     {
-        $machine = Machine::where('user_id',$user_id)->get(); 
+        $machine = Machine::where('user_id',$user_id)->get();
 
          if ($machine){
           return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);

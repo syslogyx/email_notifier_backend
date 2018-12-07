@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use App\Device;
+use App\Machine;
 
 class MachineDeviceAssocController extends Controller
 {
@@ -71,23 +72,33 @@ class MachineDeviceAssocController extends Controller
       }else{
         return response()->json(['status_code' => 404, 'message' => 'Record not found']);
       }
-      
+
     }else{
       return response()->json(['status_code' => 404, 'message' => 'Record not found']);
     }
   }
 
   public function resetDeviceById($id) {
+
+
+    $data = MachineDeviceAssoc::where("device_id",$id)->latest()->first();
+
+    $machine=Machine::where('id',  $data['machine_id'])->pluck('status')->first();
+
+    if($machine=='ENGAGE'){
+      return response()->json(['status_code' => 202, 'message' => 'Respective machine is assigned to user, first reset machine from user']);
+    }
+
     $device = Device::where('id',  $id)->update(['status' =>'NOT ENGAGE']);
     $device = Device::where('id',  $id)->update(['machine_id' =>null]);
      // $device = Device::where('id',  $device_id)->update(['machine_id' =>null]);
-    $data = MachineDeviceAssoc::where("device_id",$id)->latest()->first();
+
     if ($device){
-      
+
       $posted_data['machine_id']=$data['machine_id'];
       $posted_data['device_id']=$data['device_id'];
       $posted_data['status']='NOT ENGAGE';
-      
+
       $device = Device::where('id',  $id)->get();
       $model = MachineDeviceAssoc::create($posted_data);
       return response()->json(['status_code' => 200, 'message' => 'Device reset successfully', 'data' => $device]);
@@ -98,6 +109,12 @@ class MachineDeviceAssocController extends Controller
 
   public function resetDevicesByMachineId($id){
       $devices = Device::where('machine_id',$id)->where('status','ENGAGE')->get();
+      $machine=Machine::where('id',  $id)->pluck('status')->first();
+
+      if($machine=='ENGAGE'){
+        return response()->json(['status_code' => 202, 'message' => 'Machine is assigned to user, first reset machine from user']);
+      }
+
       if($devices && count($devices) > 0){
           foreach ($devices as $device) {
             $this->resetDeviceById($device['id']);
