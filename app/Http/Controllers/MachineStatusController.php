@@ -83,9 +83,9 @@ class MachineStatusController extends BaseController
         }
 
         if (($page != null && $page != 0) && ($limit != null && $limit != 0)) {
-            $machineStatus = $query->orderBy('updated_at','desc')->paginate($limit);
+            $machineStatus = $query->where('on_time','!=',null)->orderBy('created_at','desc')->paginate($limit);
         } else {
-            $machineStatus = $query->orderBy('updated_at','desc')->paginate(50);
+            $machineStatus = $query->where('on_time','!=',null)->orderBy('created_at','desc')->paginate(50);
         }
 
         if ($machineStatus->first()){

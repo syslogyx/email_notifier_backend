@@ -217,7 +217,7 @@ class MachineController extends Controller
                       DB::commit();
                       return $model;
                   }else {
-                      return response()->json(['status_code' => 404, 'message' => 'Device already engage.']);
+                      return response()->json(['status_code' => 404, 'message' => 'Device already engaged.']);
                   }
               }else{
                   return response()->json(['status_code' => 404, 'message' => 'Unable to assign']);

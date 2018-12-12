@@ -35,7 +35,7 @@ class MachineDeviceAssocController extends Controller
             DB::commit();
             return response()->json(['status_code' => 200, 'message' => 'Asssign successfully', 'data' => $model]);
           }else {
-            return response()->json(['status_code' => 404, 'message' => 'Device already engage.']);
+            return response()->json(['status_code' => 404, 'message' => 'Device already engaged.']);
           }
         }else{
           return response()->json(['status_code' => 404, 'message' => 'Unable to assign']);
