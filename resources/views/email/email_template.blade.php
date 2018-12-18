@@ -1,451 +1,302 @@
-<!DOCTYPE html>
-<html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title> Email </title>
+<!-- If you delete this tag, the sky will fall on your head -->
+<meta name="viewport" content="width=device-width" />
 
-<meta name="viewport" content="width=device-width"/>
-<meta name="description" content="The Curriculum Vitae of Joe Bloggs."/>
-<meta charset="UTF-8"> 
-<style type="text/css">
-.page-break {
-    page-break-after: always;
-    /*box-decoration-break: slice;*/
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>ZURBemails</title>
+   
+<link rel="stylesheet" type="text/css" href="stylesheets/email.css" />
+
+<style>
+/* -------------------------------------
+        GLOBAL
+------------------------------------- */
+* {
+    margin:0;
+    padding:0;
 }
-@page {
-    header: page-header;
-    footer: page-footer;
-    margin-top: 100px;
-    margin-bottom: 150px;
+* { font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif; }
+
+img {
+    max-width: 100%;
 }
-
-html,body,div,span,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,abbr,address,cite,code,del,dfn,em,img,ins,kbd,q,samp,small,strong,sub,sup,var,b,i,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary,time,mark,audio,video {
-border:0;
-font:inherit;
-font-size:100%;
-margin:0;
-padding:0;
-vertical-align:baseline;
+.collapse {
+    margin:0;
+    padding:0;
 }
-html,body,section{
-margin:0 20px 0 20px !important;
-}
-
-article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section {
-display:block;
-}
-
-html, body {background: transparent; font-family: 'Lato', helvetica, arial, sans-serif; font-size: 16px; color: #222;}
-
-.clear {clear: both;}
-
-p {
-    font-size:14px;
-    line-height: 1.4em;
-    /*margin-bottom: 20px;*/
-    color: #444;
+body {
+    -webkit-font-smoothing:antialiased;
+    -webkit-text-size-adjust:none;
+    width: 100%!important;
+    height: 100%;
 }
 
-span{
-    font-size:14px;
-    line-height: 1.3em;
+
+/* -------------------------------------
+        ELEMENTS
+------------------------------------- */
+a { color: #2BA6CB;}
+
+.btn {
+    text-decoration:none;
+    color: #FFF;
+    background-color: #666;
+    padding:10px 16px;
+    font-weight:bold;
+    margin-right:10px;
+    text-align:center;
+    cursor:pointer;
+    display: inline-block;
+}
+
+p.callout {
+    padding:15px;
+    background-color:#ECF8FF;
     margin-bottom: 15px;
-    color: #444;
+}
+.callout a {
+    font-weight:bold;
+    color: #2BA6CB;
 }
 
-#cv {
-    width: 100%;
-    max-width: 1024px;
-    background: white;
-    margin: 20px auto;
+table.social {
+/*     padding:15px; */
+    background-color: #ebebeb;
+   
+}
+.social .soc-btn {
+    padding: 3px 7px;
+    font-size:12px;
+    margin-bottom:10px;
+    text-decoration:none;
+    color: #FFF;font-weight:bold;
+    display:block;
+    text-align:center;
+}
+a.fb { background-color: #3B5998!important; }
+a.tw { background-color: #1daced!important; }
+a.gp { background-color: #DB4A39!important; }
+a.ms { background-color: #000!important; }
+
+.sidebar .soc-btn {
+    display:block;
+    width:100%;
 }
 
-.mainDetails {
-    /*padding: 25px 35px;*/
-    border-bottom: 2px solid black;
-    background: white;
-    margin:5px;
+/* -------------------------------------
+        HEADER
+------------------------------------- */
+table.head-wrap { width: 100%;}
+
+.header.container table td.logo { padding: 15px; }
+.header.container table td.label { padding: 15px; padding-left:0px;}
+
+
+/* -------------------------------------
+        BODY
+------------------------------------- */
+table.body-wrap { width: 100%;}
+
+
+/* -------------------------------------
+        FOOTER
+------------------------------------- */
+table.footer-wrap { width: 100%;    clear:both!important;
+}
+.footer-wrap .container td.content  p { border-top: 1px solid rgb(215,215,215); padding-top:15px;}
+.footer-wrap .container td.content p {
+    font-size:10px;
+    font-weight: bold;
+   
 }
 
-#name h1 {
-    font-size: 2.5em;
-    font-weight: 700;
-    font-family: 'Rokkitt', Helvetica, Arial, sans-serif;
-    margin-bottom: -6px;
+
+/* -------------------------------------
+        TYPOGRAPHY
+------------------------------------- */
+h1,h2,h3,h4,h5,h6 {
+font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; line-height: 1.1; margin-bottom:15px; color:#000;
+}
+h1 small, h2 small, h3 small, h4 small, h5 small, h6 small { font-size: 60%; color: #6f6f6f; line-height: 0; text-transform: none; }
+
+h1 { font-weight:200; font-size: 44px;}
+h2 { font-weight:200; font-size: 37px;}
+h3 { font-weight:500; font-size: 27px;}
+h4 { font-weight:500; font-size: 23px;}
+h5 { font-weight:900; font-size: 17px;}
+h6 { font-weight:900; font-size: 14px; text-transform: uppercase; color:#444;}
+
+.collapse { margin:0!important;}
+
+p, ul {
+    /*margin-bottom: 10px;*/
+    font-weight: normal;
+    font-size:14px;
+    line-height:0.6;
+}
+p.lead { font-size:17px; line-height:1.6;}
+p.last { margin-bottom:0px;}
+
+ul li {
+    margin-left:5px;
+    list-style-position: inside;
 }
 
-#name h2 {
-    font-size: 2em;
-    margin-left: 2px;
-    font-family: 'Rokkitt', Helvetica, Arial, sans-serif;
-}
-
-#mainArea {
-    padding: 0 40px;
-}
-
-#headshot {
-    width: 12.5%;
-    float: left;
-    margin-right: 30px;
-}
-
-#headshot img {
-    width: 100%;
-    height: auto;
-    -webkit-border-radius: 50px;
-    border-radius: 50px;
-}
-
-#name {
-    float: left;
-}
-
-#contactDetails {
-    float: right;
-}
-
-#contactDetails ul {
+/* -------------------------------------
+        SIDEBAR
+------------------------------------- */
+ul.sidebar {
+    background:#ebebeb;
+    display:block;
     list-style-type: none;
-    font-size: 0.9em;
-    margin-top: 2px;
 }
-
-#contactDetails ul li {
-    margin-bottom: 3px;
-    color: #444;
+ul.sidebar li { display: block; margin:0;}
+ul.sidebar li a {
+    text-decoration:none;
+    color: #666;
+    padding:10px 16px;
+/*     font-weight:bold; */
+    margin-right:10px;
+/*     text-align:center; */
+    cursor:pointer;
+    border-bottom: 1px solid #777777;
+    border-top: 1px solid #FFFFFF;
+    display:block;
+    margin:0;
 }
-
-#contactDetails ul li a, a[href^=tel] {
-    color: #444; 
-    text-decoration: none;
-    -webkit-transition: all .3s ease-in;
-    -moz-transition: all .3s ease-in;
-    -o-transition: all .3s ease-in;
-    -ms-transition: all .3s ease-in;
-    transition: all .3s ease-in;
-}
-
-#contactDetails ul li a:hover { 
-    color: #cf8a05;
-}
+ul.sidebar li a.last { border-bottom-width:0px;}
+ul.sidebar li a h1,ul.sidebar li a h2,ul.sidebar li a h3,ul.sidebar li a h4,ul.sidebar li a h5,ul.sidebar li a h6,ul.sidebar li a p { margin-bottom:0!important;}
 
 
-section {
-    border-top: 1px solid #dedede;
-    /*border-top: 1px solid #356aac;*/
-    padding: 20px 0 0;
+
+/* ---------------------------------------------------
+        RESPONSIVENESS
+        Nuke it from orbit. It's the only way to be sure.
+------------------------------------------------------ */
+
+/* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something */
+.container {
+    display:block!important;
+    max-width:600px!important;
+    margin:0 auto!important; /* makes it centered */
+    clear:both!important;
 }
 
-section:first-child {
-    border-top: 0;
+/* This should also be a block element, so that it will fill 100% of the .container */
+.content {
+    padding:15px;
+    max-width:600px;
+    margin:0 auto;
+    display:block;
 }
 
-section:last-child {
-    padding: 20px 0 10px;
+/* Let's make sure tables in the content area are 100% wide */
+.content table { width: 100%; }
+
+
+/* Odds and ends */
+.column {
+    width: 300px;
+    float:left;
+}
+.column tr td { padding: 15px; }
+.column-wrap {
+    padding:0!important;
+    margin:0 auto;
+    max-width:600px!important;
+}
+.column table { width:100%;}
+.social .column {
+    width: 280px;
+    min-width: 279px;
+    float:left;
 }
 
-.sectionTitle {
-    float: left;
-    width: 100%;
-}
+/* Be sure to place a .clear element after each set of columns, just to be safe */
+.clear { display: block; clear: both; }
 
-.sectionContent {
-    float: right;
-    width: 97.5%;
-}
 
-.sectionTitle h1 {
-    font-family: callibri;
-    font-size: 20px;
-    color:#356aac;
-}
+/* -------------------------------------------
+        PHONE
+        For clients that support media queries.
+        Nothing fancy.
+-------------------------------------------- */
+@media only screen and (max-width: 600px) {
+   
+    a[class="btn"] { display:block!important; margin-bottom:10px!important; background-image:none!important; margin-right:0!important;}
 
-.sectionContent h2 {
-    font-family: callibri;
-    font-size: 13px;
-    margin-bottom: -2px;
-}
-.sectionContent {
-    text-align: justify;
-}
-
-.subDetails {
-    text-align: justify;
-}
-
-.subDetails {
-    font-size: 0.8em;
-    /*font-style: italic;*/
-    margin-bottom: 3px;
-}
-
-.industrial-labels{
-    font-size: 0.8em;
-    /*font-style: italic;*/
-    margin-bottom: 5px;
-}
-
-.education-labels{
-    font-size: 0.8em;
-    /*font-style: italic;*/
-    margin-bottom: 5px;
-}
-
-.keySkills {
-    list-style-type: disc;
-    -moz-column-count:3;
-    -webkit-column-count:3;
-    column-count:3;
-    margin-bottom: 20px;
-    font-size: 14px;
-    color: #444;
-    margin-left: 10px;
-}
-
-.keySkills ul li {
-    margin-bottom: 3px;
-}
-
-@media all and (min-width: 602px) and (max-width: 800px) {
-    #headshot {
-        display: none;
-    }
-    
-    .keySkills {
-    -moz-column-count:2;
-    -webkit-column-count:2;
-    column-count:2;
-    }
-}
-
-@media all and (max-width: 601px) {
-    #cv {
-        width: 100%;
-        margin: 10px auto;
-        min-width: 280px;
-    }
-    
-    #headshot {
-        display: none;
-    }
-    
-    #name, #contactDetails {
-        float: none;
-        width: 100%;
-        text-align: center;
-    }
-    
-    .sectionTitle, .sectionContent {
-        float: none;
-        width: 100%;
-    }
-    
-    .sectionTitle {
-        margin-left: -2px;
-        font-size: 1.25em;
-    }
-    
-    .keySkills {
-        -moz-column-count:2;
-        -webkit-column-count:2;
-        column-count:2;
-    }
-}
-
-@media all and (max-width: 480px) {
-    .mainDetails {
-        padding: 15px 15px;
-    }
-    
-    section {
-        padding: 15px 0 0;
-    }
-    
-    #mainArea {
-        padding: 0 25px;
+    div[class="column"] { width: auto!important; float:none!important;}
+   
+    table.social div[class="column"] {
+        width:auto!important;
     }
 
-    
-    .keySkills {
-    -moz-column-count:1;
-    -webkit-column-count:1;
-    column-count:1;
-    }
-    
-    #name h1 {
-        line-height: .8em;
-        margin-bottom: 4px;
-    }
 }
-
-@media print {
-    #cv {
-        width: 100%;
-    }
-}
-
-@-webkit-keyframes reset {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 0;
-    }
-}
-
-@-webkit-keyframes fade-in {
-    0% {
-        opacity: 0;
-    }
-    40% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@-moz-keyframes reset {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 0;
-    }
-}
-
-@-moz-keyframes fade-in {
-    0% {
-        opacity: 0;
-    }
-    40% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@keyframes reset {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 0;
-    }
-}
-
-@keyframes fade-in {
-    0% {
-        opacity: 0;
-    }
-    40% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-.instaFade {
-    -webkit-animation-name: reset, fade-in;
-    -webkit-animation-duration: 1.5s;
-    -webkit-animation-timing-function: ease-in;
-    
-    -moz-animation-name: reset, fade-in;
-    -moz-animation-duration: 1.5s;
-    -moz-animation-timing-function: ease-in;
-    
-    animation-name: reset, fade-in;
-    animation-duration: 1.5s;
-    animation-timing-function: ease-in;
-}
-
-.quickFade {
-    -webkit-animation-name: reset, fade-in;
-    -webkit-animation-duration: 2.5s;
-    -webkit-animation-timing-function: ease-in;
-    
-    -moz-animation-name: reset, fade-in;
-    -moz-animation-duration: 2.5s;
-    -moz-animation-timing-function: ease-in;
-    
-    animation-name: reset, fade-in;
-    animation-duration: 2.5s;
-    animation-timing-function: ease-in;
-}
- 
-.delayOne {
-    -webkit-animation-delay: 0, .5s;
-    -moz-animation-delay: 0, .5s;
-    animation-delay: 0, .5s;
-}
-
-.delayTwo {
-    -webkit-animation-delay: 0, 1s;
-    -moz-animation-delay: 0, 1s;
-    animation-delay: 0, 1s;
-}
-
-.delayThree {
-    -webkit-animation-delay: 0, 1.5s;
-    -moz-animation-delay: 0, 1.5s;
-    animation-delay: 0, 1.5s;
-}
-
-.delayFour {
-    -webkit-animation-delay: 0, 2s;
-    -moz-animation-delay: 0, 2s;
-    animation-delay: 0, 2s;
-}
-
-.delayFive {
-    -webkit-animation-delay: 0, 2.5s;
-    -moz-animation-delay: 0, 2.5s;
-    animation-delay: 0, 2.5s;
-}
-
-/*#personalDetailsTable td,#qualificationDetailsTable td {
-    font-size: 0.8em;
-}*/
-
-#personalDetailsTable td .span-label,#qualificationDetailsTable td .span-label{
-    color: #444;
-}
-
-.set-title-color{
-    color: #356aac;
-}
-h1{
-    font-weight: normal !important;
-}
-
 </style>
 
-<!--[if lt IE 9]>
-<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-<![endif]-->
 </head>
-<body id="top">
-<htmlpageheader name="page-header">
-    <img src="{{ public_path('/imgs/Email_HF.png') }}">
-</htmlpageheader>
-<div id="cv" class="instaFade">
-        
-  
-    <div class="" style="display:inline-block;">          
-        <section style="border-top:0px; margin-left: 50px">
-            <div style="width: 50%; float: left;">            
-                <h1 class="set-title-color" style="font-size: 16px;">Hello All,</h1></br>
-				<h1 class="set-title-color" style="font-size: 16px;"><strong>'Machine "'.$machine_name.'" is in "'.$status.'" status with "'.$reason.'" message' </strong></h1> 
-            </div>
-           
-        </section>
-    </div>
-</div>
-<htmlpagefooter name="page-footer" style="bottom: 0px">
-<div style="text-align: center;color:#cac5c5">{PAGENO}</div>
-<img src="{{ public_path('/imgs/Footer_.png') }}">
-</htmlpagefooter>
+ 
+<body bgcolor="#FFFFFF">
+
+<!-- HEADER -->
+<table class="head-wrap">
+    <tr>
+        <td></td>
+        <td class="header container">
+                <div class="content">
+                    <table >
+                    <tr>
+                        <td><img src="http://enfapi.syslogyx.com/app/public/img/Email_HF.png" /></td> 
+                    </tr>
+                </table>
+                </div> 
+        </td>
+        <td></td>
+    </tr>
+</table><!-- /HEADER -->
+
+
+<!-- BODY -->
+<table class="body-wrap">
+    <tr>
+        <td></td>
+        <td class="container" bgcolor="#FFFFFF">
+            <div class="content">
+            <table>
+                <tr>
+                    <td>
+                        <h5>Hello All,</h5>
+                        <p class="lead">Machine "<b><?php echo $machine_name ?></b>" is in "<b><?php echo $status ?></b>" status with "<b><?php echo $reason ?></b>" message.</p>
+                    </td>
+                </tr>
+            </table>
+            </div>                       
+        </td>
+        <td></td>
+    </tr>
+</table><!-- /BODY -->
+
+
+
+<!-- FOOTER -->
+<table class="head-wrap">
+    <tr>
+        <td></td>
+        <td class="header container">
+                <div class="content">
+                    <table >
+                    <tr>
+                        <td><img src="http://enfapi.syslogyx.com/app/public/img/Footer_.png" /></td>
+                       
+                    </tr>
+                </table>
+                </div>   
+        </td>
+        <td></td>
+    </tr>
+</table>
 </body>
 </html>
+

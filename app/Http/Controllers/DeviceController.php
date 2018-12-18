@@ -15,6 +15,7 @@ use App\User;
 use App\MachineStatus;
 use Illuminate\Support\Facades\Mail;
 use Bogardo\Mailgun\MailgunServiceProvider;
+use App\OldDeviceRecordAssoc;
 
 
 class DeviceController extends BaseController {
@@ -128,8 +129,10 @@ class DeviceController extends BaseController {
   
   public function updateDevice() {
     $posted_data = Input::all();
-    // $object = new Device();
     $object = Device::find($posted_data['id']);
+
+    $oldDeviceData = $this->saveOldDeviceData($posted_data['id']);
+
     if ($object->validate($posted_data)) {
         if(isset($posted_data["port_1_0_reason"])){
             if(!is_numeric($posted_data["port_1_0_reason"])){
@@ -226,6 +229,33 @@ class DeviceController extends BaseController {
     } else {
         throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to update device.', $object->errors());
     }
+  }
+
+  public function saveOldDeviceData($deviceId){
+
+      $object = Device::find($deviceId)->toArray();
+
+      $objectoldDevice = new OldDeviceRecordAssoc();
+
+      $objectoldDevice['name'] = $object['name'];
+      $objectoldDevice['status'] = $object['status'];
+      $objectoldDevice['machine_id'] = $object['machine_id'];
+
+      $objectoldDevice['port_1_0_status'] = $object['port_1_0_status'];
+      $objectoldDevice['port_1_0_reason'] = $object['port_1_0_reason'];
+
+      $objectoldDevice['port_1_1_status'] = $object['port_1_1_status'];
+      $objectoldDevice['port_1_1_reason'] = $object['port_1_1_reason'];
+
+      $objectoldDevice['port_2_0_status'] = $object['port_2_0_status'];
+      $objectoldDevice['port_2_0_reason'] = $object['port_2_0_reason'];
+      
+      $objectoldDevice['port_2_1_status'] = $object['port_2_1_status'];
+      $objectoldDevice['port_2_1_reason'] = $object['port_2_1_reason'];
+
+      $objectoldDevice->save();
+      
+      return $objectoldDevice;   
   }
 
   public function getDevices() {
@@ -332,7 +362,7 @@ class DeviceController extends BaseController {
   public function getDeviceStatusReasonAndEmail(){ 
     try{
 
-      //$posted_data = ['{"device_id":"DID01","port_1":"1"}'];
+        // $posted_data = ['{"device_id":"DID01","port_2":"1"}'];
       $posted_data = Input::all();
       $posted_data= (array) json_decode($posted_data[0]);
       

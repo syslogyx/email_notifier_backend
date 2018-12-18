@@ -16,7 +16,7 @@ class CreateStatusReasonsTable extends Migration
     {
         Schema::create('status__reasons', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('reason');
+            $table->longText('reason');
             $table->string('status')->nullable();
             $table->timestamps();
         });

@@ -19,7 +19,6 @@ class UserMachineAssocController extends Controller
         
             $assignedUser = Machine::where('user_id',$posted_data['user_id'])->where('id','<>',$posted_data['machine_id'])->first();
             $assignDevicesToMachien = Device::where("machine_id",$posted_data['machine_id'])->get();
-            // return $assignDevicesToMachien;
 
             if(count($assignDevicesToMachien)!= 0){
 
@@ -174,7 +173,7 @@ class UserMachineAssocController extends Controller
             }
         }
 
-         if ($machine){
+        if ($machine){
           return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);
         }else{
           return response()->json(['status_code' => 404, 'message' => 'Machine not found']);

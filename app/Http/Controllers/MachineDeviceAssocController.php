@@ -81,21 +81,18 @@ class MachineDeviceAssocController extends Controller
 
   public function resetDeviceById($id) {
 
-
     $data = MachineDeviceAssoc::where("device_id",$id)->latest()->first();
 
     $machine=Machine::where('id',  $data['machine_id'])->first();
 
-    if($machine['status']=='ENGAGE'){
-      $user=User::where('id',  $machine['user_id'])->pluck('name')->first();
-      return response()->json(['status_code' => 202, 'message' => $machine['name'].' is assigned to '.$user.', first reset machine from '.$user]);
-    }
-
+    // if($machine['status']=='ENGAGE'){
+    //   $user=User::where('id',  $machine['user_id'])->pluck('name')->first();
+    //   return response()->json(['status_code' => 202, 'message' => $machine['name'].' is assigned to '.$user.', first reset machine from '.$user]);
+    // }
 
 
     $device = Device::where('id',  $id)->update(['status' =>'NOT ENGAGE']);
     $device = Device::where('id',  $id)->update(['machine_id' =>null]);
-     // $device = Device::where('id',  $device_id)->update(['machine_id' =>null]);
 
     if ($device){
 
@@ -115,10 +112,10 @@ class MachineDeviceAssocController extends Controller
       $devices = Device::where('machine_id',$id)->where('status','ENGAGE')->get();
       $machine=Machine::where('id',  $id)->first();
 
-      if($machine['status']=='ENGAGE'){
-        $user=User::where('id',  $machine['user_id'])->pluck('name')->first();
-        return response()->json(['status_code' => 202, 'message' => $machine['name'].' is assigned to '.$user.', first reset machine from '.$user]);
-      }
+      // if($machine['status']=='ENGAGE'){
+      //   $user=User::where('id',  $machine['user_id'])->pluck('name')->first();
+      //   return response()->json(['status_code' => 202, 'message' => $machine['name'].' is assigned to '.$user.', first reset machine from '.$user]);
+      // }
 
       if($devices && count($devices) > 0){
           foreach ($devices as $device) {
