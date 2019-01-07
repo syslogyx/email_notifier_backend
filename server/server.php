@@ -37,7 +37,7 @@ while (true)
 
     // get a list of all the clients that have data to be read from
     // if there are no clients with data, go to next iteration
-    if (socket_select($read, $write, $except, 0) < 1)
+    if (socket_select($read, $write, $except, null) < 1)
         continue;
 
     // check if there is a client trying to connect
