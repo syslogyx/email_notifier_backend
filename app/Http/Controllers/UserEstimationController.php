@@ -96,8 +96,8 @@ class UserEstimationController extends Controller
 
     function sendMailToUsers($model) {
 
-      config(['mail.username' => 'yogeshj.vyako@gmail.com',
-              'mail.password' => 'k@de&*vm']);
+      config(['mail.username' => 'admsyslogyx@gmail.com',
+              'mail.password' => 'ealert123#']);
       
       $email = explode(',', $model['email_ids']);
      
