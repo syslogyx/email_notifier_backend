@@ -113,9 +113,8 @@ while (true)
 socket_close($sock);
 
 function sendEmail($request,$sock){
-  // echo "$request\n";
+  // str_replace("3\b", "", json_encode($request)
   global $server_api;
-
   
   $ch = curl_init($server_api.'/get/devicesInfo');
   curl_setopt_array($ch, array(
