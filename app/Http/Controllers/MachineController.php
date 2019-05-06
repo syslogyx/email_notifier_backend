@@ -13,22 +13,23 @@ use App\User;
 class MachineController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * API to listing of the not engage machines without paginations.
      *
      * @return \Illuminate\Http\Response
      */
-    public function getMachines()
-    {
+    public function getMachines(){
         $machine = Machine::where('status','NOT ENGAGE')->get();
         if ($machine){
-          return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);
+            return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);
         }else{
-          return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
+            return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
         }
     }
 
-    public function getAllMachines(Request $request)
-    {
+    /**
+    * API to get all machine list with paginations
+    */
+    public function getAllMachines(Request $request){
         $page = $request->page;
         $limit = $request->limit;
         if(($page == null|| $limit == null) || ($page == -1 || $limit == -1)){
@@ -51,18 +52,20 @@ class MachineController extends Controller
         }
     }
 
+    /**
+    * function to get assigned devices to machine by machine ID
+    */
     public function getDevices($machineID){
         $devices = Device::where("machine_id",$machineID)->where('status','=', 'ENGAGE')->get();
         return $devices;
     }
 
     /**
-    * Show the form for creating a new resource.
+    * API for creating a new machine.
     *
     * @return \Illuminate\Http\Response
     */
-    public function createMachine()
-    {
+    public function createMachine(){
       try{
         DB::beginTransaction();
         $posted_data = Input::all();
@@ -71,50 +74,49 @@ class MachineController extends Controller
         $deviceList = $posted_data["device_list"];
         unset($posted_data["device_list"]);
         if ($object->validate($posted_data)) {
-          $posted_data['status']='NOT ENGAGE';
-          $machine = Machine::where("name",$posted_data['name'])->first();
-          if($machine){
-            return response()->json(['status_code' => 201, 'message' => 'Machine already created']);
-          }else{
-            $model = Machine::create($posted_data);
-            if($model){
-              foreach ($deviceList as $key => $value) {
-                $data = [];
-                $data["machine_id"] = $model->id;
-                $data["device_id"] = $value;
-                $res = $this->assignDeviceToMachine($data);
-                if(!isset($res->id)){
-                  return $res;
+            $posted_data['status']='NOT ENGAGE';
+            $machine = Machine::where("name",$posted_data['name'])->first();
+            if($machine){
+                return response()->json(['status_code' => 201, 'message' => 'Machine already created']);
+            }else{
+                $model = Machine::create($posted_data);
+                if($model){
+                    foreach ($deviceList as $key => $value) {
+                        $data = [];
+                        $data["machine_id"] = $model->id;
+                        $data["device_id"] = $value;
+                        $res = $this->assignDeviceToMachine($data);
+                        if(!isset($res->id)){
+                            return $res;
+                        }
+                    }
+                    DB::commit();
+                    return response()->json(['status_code' => 200, 'message' => 'Machine created successfully', 'data' => $model]);
                 }
-              }
-              DB::commit();
-              return response()->json(['status_code' => 200, 'message' => 'Machine created successfully', 'data' => $model]);
             }
-          }
         } else {
-          throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to create machine.', $object->errors());
+            throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to create machine.', $object->errors());
         }
       }
       catch(\Exception $e){
-        DB::rollback();
-        throw $e;
+          DB::rollback();
+          throw $e;
       }
     }
 
     /**
-     * Update the specified resource in storage.
+     * API to Update the machine.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Machine  $machine
      * @return \Illuminate\Http\Response
      */
-    public function updateMachine()
-    {
+    public function updateMachine(){
       try{
           DB::beginTransaction();
           $posted_data = Input::all();
 
-          $machine=Machine::where('id',  $posted_data['id'])->first();
+          $machine = Machine::where('id',  $posted_data['id'])->first();
 
           // if($machine['status']=='ENGAGE'){
           //   $user=User::where('id',  $machine['user_id'])->pluck('name')->first();
@@ -143,7 +145,7 @@ class MachineController extends Controller
               if($machine){
                   if(isset($oldDevice)){
                       foreach ($oldDevice as $key => $value) {
-                        $this->resetDeviceById($value);
+                          $this->resetDeviceById($value);
                       }
                   }
 
@@ -165,7 +167,7 @@ class MachineController extends Controller
                   return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
               }
           } else {
-            throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to update machine.', $object->errors());
+              throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to update machine.', $object->errors());
           }
       }
       catch(\Exception $e){
@@ -174,8 +176,10 @@ class MachineController extends Controller
       }
     }
 
-    public function getMachineById($id)
-    {
+    /**
+    * API to get machine data by machine ID
+    */
+    public function getMachineById($id){
         $machine = Machine::where("id",$id)->first();
 
         // $machine["device_data"] = MachineDeviceAssoc::with('device')->where("machine_id",$id)->where('status','=', 'ENGAGE')->get();
@@ -190,10 +194,11 @@ class MachineController extends Controller
         }
     }
 
+    /**
+    * Function to assign device to machine
+    */
     public function assignDeviceToMachine($data) {
-
       try{
-
           DB::beginTransaction();
           $posted_data = $data;
 
@@ -208,7 +213,7 @@ class MachineController extends Controller
                   $device = Device::where('id', $posted_data['device_id'])->where('status','<>', 'ENGAGE')->update(['status' =>'ENGAGE']);
 
                   $device = Device::where('id', $posted_data['device_id'])
-                  ->update(['machine_id' =>$posted_data['machine_id']]);
+                  ->update(['machine_id' => $posted_data['machine_id']]);
 
                   if($device){
                       if($find=='' || $find['status']=='ENGAGE'){
@@ -232,8 +237,10 @@ class MachineController extends Controller
       }
     }
 
+    /**
+    * Function to reset assign device to machine by device ID
+    */
     public function resetDeviceById($device_id) {
-
         $device = Device::where('id',  $device_id)->update(['status' =>'NOT ENGAGE']);
         $device = Device::where('id',  $device_id)->update(['machine_id' =>null]);
         $data = MachineDeviceAssoc::where("device_id",$device_id)->latest()->first();
@@ -249,14 +256,16 @@ class MachineController extends Controller
         }
     }
 
-    public function getAllAssignMachinesByUSerId($user_id)
-    {
+    /**
+    * API to get all assigned machines to user by user ID
+    */
+    public function getAllAssignMachinesByUSerId($user_id){
         $machine = Machine::where('user_id',$user_id)->get();
 
-         if ($machine){
-          return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);
+        if ($machine){
+            return response()->json(['status_code' => 200, 'message' => 'Machine list', 'data' => $machine]);
         }else{
-          return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
+            return response()->json(['status_code' => 404, 'message' => 'Machine not found']);
         }
     }
 }

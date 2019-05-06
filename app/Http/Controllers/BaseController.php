@@ -18,8 +18,7 @@ class BaseController extends Controller {
         $response["message"] = $msg;
         $response["data"] = $data;
 //        $resource = new Item($data, $transformer);
-//        $resource = new Collection($data, $transformer);
-        
+//        $resource = new Collection($data, $transformer);    
 //        $this->pp($resource->transform());
 //        die();
 //        $response["data"] = $resource->getData();

@@ -12,6 +12,9 @@ use App\Device;
 
 class UserMachineAssocController extends Controller
 {
+    /**
+    * API to assign usr to machine
+    */
     public function assignUserToMachine() {
         try{
             DB::beginTransaction();
@@ -59,7 +62,8 @@ class UserMachineAssocController extends Controller
             throw $e;
         }
     }
-/*
+    
+    /*
     public function getMachineIdByUserId($id) {
         $userId=User::where("id",$id)->pluck('id')->first();
 
@@ -79,6 +83,9 @@ class UserMachineAssocController extends Controller
     }
     */
 
+    /**
+    * API to get assigned machine data by user ID
+    */
     public function getMachineIdByUserId($id) {
         $user=User_Machine_Assoc::with('machine')->where("user_id",$id)->latest()->first();
 
@@ -98,6 +105,9 @@ class UserMachineAssocController extends Controller
         }
     }
 
+    /**
+    * API to get user data by machine ID
+    */
     public function getUserIdByMachineId($id) {
         $device = User_Machine_Assoc::where("machine_id",$id)->where('status','=', 'ENGAGE')->latest()->first();
         if ($device){
@@ -112,8 +122,10 @@ class UserMachineAssocController extends Controller
         }
     }
 
+    /**
+    * API to reset machine by machine ID
+    */
     public function resetMachineById($id) {
-
         $machine = Machine::where('id', $id)->update(['status' =>'NOT ENGAGE','user_id'=>NULL]);
 
         $machineData = Machine::get();
@@ -132,12 +144,14 @@ class UserMachineAssocController extends Controller
         }
     }
 
+    /**
+    * API to reset assigned machine by user ID
+    */
     public function resetMachineByUserId($id) {
-
         // $data = User_Machine_Assoc::where("user_id",$id)->where("status","ENGAGE")->latest()->first();
         //
         // if($data){
-            $machine = Machine::where('user_id', $id)->where("status","ENGAGE")->get();
+        $machine = Machine::where('user_id', $id)->where("status","ENGAGE")->get();
 
             // if ($machine){
             //     $posted_data['machine_id']=$data['machine_id'];
@@ -148,11 +162,11 @@ class UserMachineAssocController extends Controller
             //     $machine->update();
             //
             //     $model = User_Machine_Assoc::create($posted_data);
-                if($machine && count($machine) > 0){
-                    foreach ($machine as $machines) {
-                      $this->resetMachineById($machines['id']);
-                    }
-                return response()->json(['status_code' => 200, 'message' => 'Machine reset successfully']);
+        if($machine && count($machine) > 0){
+            foreach ($machine as $machines) {
+              $this->resetMachineById($machines['id']);
+            }
+        return response()->json(['status_code' => 200, 'message' => 'Machine reset successfully']);
             // }else{
             //     return response()->json(['status_code' => 404, 'message' => 'Machine unable to reset.']);
             // }
@@ -161,8 +175,10 @@ class UserMachineAssocController extends Controller
         }
     }
 
-    public function getAllAssignMachinesRecordsByUSerId($user_id)
-    {
+    /**
+    * API to get all assigned machine records by user ID
+    */
+    public function getAllAssignMachinesRecordsByUSerId($user_id){
         $machine = User_Machine_Assoc::where('user_id',$user_id)->distinct()->select('machine_id')->get();
 
         if($machine && count($machine) > 0){

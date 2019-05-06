@@ -50,9 +50,7 @@ class AuthController extends Controller {
 
         $user = User::where('email', $email)->with('role')->first();
         $user_machine_data  = Machine::where('user_id', $user['id'])->first();
-        // print_r($user_machine_data);
-        // die();
-        
+
         if($user_machine_data){
             if($user_machine_data->status == 'ENGAGE'){
                 $user['machine_id'] = $user_machine_data->id;

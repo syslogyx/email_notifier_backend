@@ -15,8 +15,10 @@ use Bogardo\Mailgun\MailgunServiceProvider;
 
 class UserEstimationController extends Controller
 {
-    public function create()
-    {
+    /**
+    * API to add user given estimation to OFF machine
+    */
+    public function create(){
         try{
 
             DB::beginTransaction();
@@ -58,7 +60,6 @@ class UserEstimationController extends Controller
                             $model = UserEstimation::create($posted_data);
 
                             $estTime = explode(":",$posted_data['hour']);
-                            // return $estTime;
 
                             $data =[];
                             $data['user_name'] = $statusReason['machineData']['user']['name'];
@@ -94,24 +95,26 @@ class UserEstimationController extends Controller
         }
     }
 
+    /**
+    * Function to send estimation email of OFF machine
+    */
     function sendMailToUsers($model) {
+        config(['mail.username' => 'admsyslogyx@gmail.com',
+                'mail.password' => 'ealert123#']);
+        
+        $email = explode(',', $model['email_ids']);
+       
+        $subjectMsg = '[Estimation of Machine-'.$model['machine_name'].' by '.$model['user_name'].']';
 
-      config(['mail.username' => 'admsyslogyx@gmail.com',
-              'mail.password' => 'ealert123#']);
-      
-      $email = explode(',', $model['email_ids']);
-     
-      $subjectMsg = '[Estimation of Machine-'.$model['machine_name'].' by '.$model['user_name'].']';
+        Mail::send('email.estimation_email_template', $model, function($message) use ($email,$subjectMsg) {        
+            $message->to($email);
+            $message->subject($subjectMsg);
+        });
 
-      Mail::send('email.estimation_email_template', $model, function($message) use ($email,$subjectMsg) {        
-          $message->to($email);
-          $message->subject($subjectMsg);
-      });
-
-      if (count(Mail::failures()) > 0) {
-          $errors = 'Failed to send email, please try again.';
-          return $errors;
-      }
-  }
+        if (count(Mail::failures()) > 0) {
+            $errors = 'Failed to send email, please try again.';
+            return $errors;
+        }
+    }
 
 }

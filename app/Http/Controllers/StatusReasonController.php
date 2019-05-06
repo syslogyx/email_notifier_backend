@@ -21,7 +21,7 @@ class StatusReasonController extends Controller
 
 
     /**
-     * Store a newly created resource in storage.
+     * API to add port status reasons
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -29,29 +29,29 @@ class StatusReasonController extends Controller
     public function addReason()
     {
         $posted_data = Input::all();
-      $object = new Status_Reason();
-      if ($object->validate($posted_data)) {
-          $model = Status_Reason::create($posted_data);
-          return response()->json(['status_code' => 200, 'message' => 'Reason added successfully', 'data' => $model]);
-      } else {
-          throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to add reason.', $object->errors());
-      }
+        $object = new Status_Reason();
+        if ($object->validate($posted_data)) {
+            $model = Status_Reason::create($posted_data);
+            return response()->json(['status_code' => 200, 'message' => 'Reason added successfully', 'data' => $model]);
+        } else {
+            throw new \Dingo\Api\Exception\StoreResourceFailedException('Unable to add reason.', $object->errors());
+        }
     }
 
     /**
-     * Display the specified resource.
+     * API get all port status reasons list
      *
      * @param  \App\Status_Reason  $status_Reason
      * @return \Illuminate\Http\Response
      */
     public function getReasons(Status_Reason $status_Reason)
     {
-      $model = Status_Reason::all();
-      if (count($model)>0) {
-          return response()->json(['status_code' => 200, 'message' => 'Reason List', 'data' => $model]);
-      } else {
-          return response()->json(['status_code' => 404, 'message' => 'Record not found.']);
-      }
+        $model = Status_Reason::all();
+        if (count($model)>0) {
+            return response()->json(['status_code' => 200, 'message' => 'Reason List', 'data' => $model]);
+        } else {
+            return response()->json(['status_code' => 404, 'message' => 'Record not found.']);
+        }
     }
 
     /**

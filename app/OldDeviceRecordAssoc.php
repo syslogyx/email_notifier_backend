@@ -24,7 +24,7 @@ class OldDeviceRecordAssoc extends Model
 	    return true;
 	}
 
- public function errors() {
+  public function errors() {
       return $this->errors;
   }
 

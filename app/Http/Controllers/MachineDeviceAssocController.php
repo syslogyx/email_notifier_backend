@@ -12,6 +12,9 @@ use App\User;
 
 class MachineDeviceAssocController extends Controller
 {
+  /**
+  * API to assign device to machine
+  */
   public function assignDeviceToMachine() {
     try{
       DB::beginTransaction();
@@ -50,6 +53,9 @@ class MachineDeviceAssocController extends Controller
     }
   }
 
+  /**
+  * API to get machine ID by assigned device ID
+  */
   public function getMachineIdByDeviceId($id) {
     $deviceId=Device::where("id",$id)->where('status','=', 'ENGAGE')->pluck('id')->first();
     if($deviceId){
@@ -64,6 +70,9 @@ class MachineDeviceAssocController extends Controller
     }
   }
 
+  /**
+  * API to get assigned device ID by machine ID
+  */
   public function getDeviceIdByMachineId($id) {
     $device = MachineDeviceAssoc::where("machine_id",$id)->where('status','=', 'ENGAGE')->latest()->first();
     if ($device){
@@ -79,10 +88,11 @@ class MachineDeviceAssocController extends Controller
     }
   }
 
+  /**
+  * API to reset device by device ID
+  */
   public function resetDeviceById($id) {
-
     $data = MachineDeviceAssoc::where("device_id",$id)->latest()->first();
-
     $machine=Machine::where('id',  $data['machine_id'])->first();
 
     // if($machine['status']=='ENGAGE'){
@@ -90,12 +100,10 @@ class MachineDeviceAssocController extends Controller
     //   return response()->json(['status_code' => 202, 'message' => $machine['name'].' is assigned to '.$user.', first reset machine from '.$user]);
     // }
 
-
     $device = Device::where('id',  $id)->update(['status' =>'NOT ENGAGE']);
     $device = Device::where('id',  $id)->update(['machine_id' =>null]);
 
     if ($device){
-
       $posted_data['machine_id']=$data['machine_id'];
       $posted_data['device_id']=$data['device_id'];
       $posted_data['status']='NOT ENGAGE';
@@ -108,23 +116,26 @@ class MachineDeviceAssocController extends Controller
     }
   }
 
+  /**
+  * API to reset assigned devices by machine ID
+  */
   public function resetDevicesByMachineId($id){
-      $devices = Device::where('machine_id',$id)->where('status','ENGAGE')->get();
-      $machine=Machine::where('id',  $id)->first();
+    $devices = Device::where('machine_id',$id)->where('status','ENGAGE')->get();
+    $machine=Machine::where('id',  $id)->first();
 
-      // if($machine['status']=='ENGAGE'){
-      //   $user=User::where('id',  $machine['user_id'])->pluck('name')->first();
-      //   return response()->json(['status_code' => 202, 'message' => $machine['name'].' is assigned to '.$user.', first reset machine from '.$user]);
-      // }
+    // if($machine['status']=='ENGAGE'){
+    //   $user=User::where('id',  $machine['user_id'])->pluck('name')->first();
+    //   return response()->json(['status_code' => 202, 'message' => $machine['name'].' is assigned to '.$user.', first reset machine from '.$user]);
+    // }
 
-      if($devices && count($devices) > 0){
-          foreach ($devices as $device) {
-            $this->resetDeviceById($device['id']);
-          }
-          return response()->json(['status_code' => 200, 'message' => 'Device reset successfully']);
-      }else{
-          return response()->json(['status_code' => 404, 'message' => 'Device unable to reset.']);
+    if($devices && count($devices) > 0){
+      foreach ($devices as $device) {
+        $this->resetDeviceById($device['id']);
       }
+      return response()->json(['status_code' => 200, 'message' => 'Device reset successfully']);
+    }else{
+      return response()->json(['status_code' => 404, 'message' => 'Device unable to reset.']);
+    }
   }
 
 }

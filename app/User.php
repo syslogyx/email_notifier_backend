@@ -34,7 +34,7 @@ class User extends Authenticatable {
 
     public function validate($data) {
         
-      if ($this->id){
+        if ($this->id){
             $this->rules['email'] .= $this->id;
             $this->rules['password'] ='';
         }
@@ -52,11 +52,11 @@ class User extends Authenticatable {
     }
 
     public function role() {
-      return $this->belongsTo('App\Role')->select(array('id', 'name'));
+        return $this->belongsTo('App\Role')->select(array('id', 'name'));
     }
 
     public function Machine() {
-      return $this->belongsTo('App\User_Machine_Assoc','user_id')->where('status','ENGAGE');
+        return $this->belongsTo('App\User_Machine_Assoc','user_id')->where('status','ENGAGE');
     }
 
     public function assignMachineData() {

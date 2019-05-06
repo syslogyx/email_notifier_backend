@@ -14,7 +14,10 @@ use DateTime;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class MachineStatusController extends BaseController
-{
+{   
+    /**
+    * API to get Device Port status by machine ID to show on dashboard
+    */
     public function GetDevicePortStatus($machineId){
         try{
 
@@ -22,9 +25,9 @@ class MachineStatusController extends BaseController
 
             $machineStatusData = MachineStatus::with('device','machine')->where('machine_id',$machineId)->whereIn('device_id', $deviceIds)->orderBy('created_at','asc')->get()->last();
             
-             $machineStatuscolm =$machineStatusData['port'].'_'.$machineStatusData['status'].'_status';
+            $machineStatuscolm =$machineStatusData['port'].'_'.$machineStatusData['status'].'_status';
              
-             $machineStatus= $machineStatusData['device'][$machineStatuscolm];
+            $machineStatus= $machineStatusData['device'][$machineStatuscolm];
 
             if($machineStatusData){
 
@@ -45,10 +48,7 @@ class MachineStatusController extends BaseController
                     $machineStatusData['flag'] = 'False';
                     return response()->json(['status_code' => 200, 'message' => 'Machine Status list', 'data' => $machineStatusData]);
                 }else{
-
                     $oldDeviceData = OldDeviceRecordAssoc::where('machine_id',$machineId)->orderBy('created_at','asc')->get()->last();
-
-                     // return $oldDeviceData[$machineStatuscolm];
 
                     if ($oldDeviceData[$machineStatuscolm] == 'OFF'){
                        $machineStatusData['machineCurrStatus'] = 'OFF';
@@ -58,20 +58,17 @@ class MachineStatusController extends BaseController
                             return response()->json(['status_code' => 200, 'message' => 'Machine Status list', 'data' => $machineStatusData]);
                         }
                         else{
-
                             $machineStatusData['flag'] = 'False';
                             return response()->json(['status_code' => 200, 'message' => 'Machine Status list', 'data' => $machineStatusData]);
                         }
                     }else if ($oldDeviceData[$machineStatuscolm] == 'ON'){
-                         $machineStatusData['machineCurrStatus'] = 'ON';
+                        $machineStatusData['machineCurrStatus'] = 'ON';
                         $machineStatusData['flag'] = 'False';
                         return response()->json(['status_code' => 200, 'message' => 'Machine Status list', 'data' => $machineStatusData]);
                     }else{
                         $machineStatusData['machineCurrStatus'] = '';
-
                     }   
                 }
-
             }else{
                 return response()->json(['status_code' => 404, 'message' => 'Record Not Found']);
             }         
@@ -82,6 +79,9 @@ class MachineStatusController extends BaseController
         }
     }
 
+    /**
+    * API to filter the machine status record in report section with pagination
+    */
     public function filterOnMachineStatus(Request $request){
         $page = $request->page;
         $limit = $request->limit;
@@ -162,6 +162,9 @@ class MachineStatusController extends BaseController
         }
     }
 
+    /**
+    * API to pdf of machine working reports
+    */
     function generatePdf(Request $request) {
         $data =$request->req;
         $data1 = base64_decode($data);
@@ -205,8 +208,6 @@ class MachineStatusController extends BaseController
 
         $machineStatus = $this->calculateActualHourForEachMachine($machineStatus);
 
-         // return $machineStatus;
-
         view()->share('data', $machineStatus);
 
         $pdf = PDF::loadView('report/pdfview');
@@ -214,6 +215,9 @@ class MachineStatusController extends BaseController
         return $pdf->download('Report.pdf');
     }
 
+    /**
+    * Function to calculate actual working hour for each machine
+    */
     public function calculateActualHourForEachMachine($machineStatus){
         for($i = 0; $i < count($machineStatus); $i++) {
             if($machineStatus[$i]['on_time'] != null){

@@ -42,7 +42,6 @@ $api->version("v1", function($api) {
     $api->post("get/devicesInfo", "App\Http\Controllers\DeviceController@getDeviceStatusReasonAndEmail");
 
     // reasons API
-
     $api->post("add/reason", "App\Http\Controllers\StatusReasonController@addReason");
     $api->put("update/reason", "App\Http\Controllers\StatusReasonController@updateReason");
     $api->get("get/reasons", "App\Http\Controllers\StatusReasonController@getReasons");

@@ -17,12 +17,13 @@ use Illuminate\Support\Collection;
 
 
 class UserController extends BaseController {
+  /**
+  * API to create new user
+  */
   public function createUser() {
       $posted_data = Input::all();
-
       $object = new User();
       if ($object->validate($posted_data)) {
-        // return $posted_data;
           $posted_data['password']=Hash::make($posted_data['password']);
           $model = User::create($posted_data);
           return response()->json(['status_code' => 200, 'message' => 'User created successfully', 'data' => $model]);
@@ -31,6 +32,9 @@ class UserController extends BaseController {
       }
   }
 
+  /**
+  * API to update users
+  */
   public function updateUser() {
       $posted_data = Input::all();
       
@@ -54,6 +58,9 @@ class UserController extends BaseController {
       }
   }
 
+  /**
+  * API to get users list with pagination
+  */
   public function getUsers(Request $request) {
     $page = $request->page;
     $limit = $request->limit;
@@ -88,6 +95,9 @@ class UserController extends BaseController {
     }
   }
 
+  /**
+  * API to import users (Not in Used)
+  */
   public function importUsers(Request $request) {
     try {
       $path = $request->file('csv_file')->getRealPath();
@@ -120,6 +130,9 @@ class UserController extends BaseController {
     }
   }
 
+  /**
+  * API to get user data by ID
+  */
   public function getUserById($id) {
     $user = User::where("id",$id)->first();
     if ($user){

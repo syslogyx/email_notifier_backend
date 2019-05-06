@@ -19,6 +19,9 @@ use App\OldDeviceRecordAssoc;
 
 
 class DeviceController extends BaseController {
+  /**
+  * API to create new Device
+  */
   public function createDevice() {
     $posted_data = Input::all();
 
@@ -27,7 +30,6 @@ class DeviceController extends BaseController {
     if ($object->validate($posted_data)) {
       $posted_data['status']='NOT ENGAGE';
       $postd_data["machine_id"] ="";
-      // return $posted_data;
       $device = Device::where("name",$posted_data['name'])->first();
       if($device){
         return response()->json(['status_code' => 201, 'message' => 'Device already created']);
@@ -127,6 +129,9 @@ class DeviceController extends BaseController {
     }
   }
   
+  /**
+  * API to update Device
+  */
   public function updateDevice() {
     $posted_data = Input::all();
     $object = Device::find($posted_data['id']);
@@ -222,7 +227,7 @@ class DeviceController extends BaseController {
 
         if($device){
             $res = Device::with('machineData')->find($posted_data['id']);
-          return response()->json(['status_code' => 200, 'message' => 'Device updated successfully', 'data' => $res]);
+            return response()->json(['status_code' => 200, 'message' => 'Device updated successfully', 'data' => $res]);
         }else{
             return response()->json(['status_code' => 404, 'message' => 'Device not found']);
         }
@@ -231,6 +236,9 @@ class DeviceController extends BaseController {
     }
   }
 
+  /**
+  * Function to save old Device data
+  */
   public function saveOldDeviceData($deviceId){
 
       $object = Device::find($deviceId)->toArray();
@@ -258,6 +266,9 @@ class DeviceController extends BaseController {
       return $objectoldDevice;   
   }
 
+  /**
+  * API to get all not enagage Devices without pagination
+  */
   public function getDevices() {
     $device = Device::with('machineData')->where('status','NOT ENGAGE')->get();
     if ($device){
@@ -268,6 +279,9 @@ class DeviceController extends BaseController {
     }
   }
 
+  /**
+  * API to get all Device list with pagination
+  */
   public function getAllDevices(Request $request) {
       $page = $request->page;
       $limit = $request->limit;
@@ -285,38 +299,37 @@ class DeviceController extends BaseController {
       }
   }
 
+  /**
+  * API to get Device data by device ID
+  */
   public function getDeviceById($id) {
       $device = Device::with('status_reason_port_one_0','status_reason_port_one_1','status_reason_port_two_0','status_reason_port_two_1','machineData')->where("id",$id)->first();
 
       $arr=[];
 
-      if($device['status_reason_port_one_0']!=null){
-         
+      if($device['status_reason_port_one_0']!=null){  
           $device['status_reason_port_one_0']['flag']=$device['port_1_0_status'];
           $device['status_reason_port_one_0']['current_device_port_no']='Port_1';
           $device['status_reason_port_one_0']['current_device_status']='0';
-           array_push($arr, $device['status_reason_port_one_0']);
+          array_push($arr, $device['status_reason_port_one_0']);
       }
-      if($device['status_reason_port_one_1']!=null){
-          
+      if($device['status_reason_port_one_1']!=null){      
           $device['status_reason_port_one_1']['flag']=$device['port_1_1_status'];
           $device['status_reason_port_one_1']['current_device_port_no']='Port_1';
           $device['status_reason_port_one_1']['current_device_status']='1';
           array_push($arr, $device['status_reason_port_one_1']);
       }
-      if($device['status_reason_port_two_0']!=null){
-          
+      if($device['status_reason_port_two_0']!=null){ 
           $device['status_reason_port_two_0']['flag']=$device['port_2_0_status'];
           $device['status_reason_port_two_0']['current_device_port_no']='Port_2';
           $device['status_reason_port_two_0']['current_device_status']='0';
           array_push($arr, $device['status_reason_port_two_0']);
       }
       if($device['status_reason_port_two_1']!=null){
-         
-         $device['status_reason_port_two_1']['flag']=$device['port_2_1_status'];
-         $device['status_reason_port_two_1']['current_device_port_no']='Port_2';
+          $device['status_reason_port_two_1']['flag']=$device['port_2_1_status'];
+          $device['status_reason_port_two_1']['current_device_port_no']='Port_2';
           $device['status_reason_port_two_1']['current_device_status']='1';
-           array_push($arr, $device['status_reason_port_two_1']);
+          array_push($arr, $device['status_reason_port_two_1']);
       }
       $device['reasonList']=$arr;
 
@@ -327,6 +340,9 @@ class DeviceController extends BaseController {
       }
   }
 
+  /**
+  * API to import devices (NOT IN USE)
+  */
   public function importDevices(Request $request) {
     try {
       $path = $request->file('csv_file')->getRealPath();
@@ -359,10 +375,13 @@ class DeviceController extends BaseController {
     }
   }
 
+  /**
+  * API to hit email according to device status from server script
+  */
   public function getDeviceStatusReasonAndEmail(){ 
     try{
 
-        // $posted_data = ['{"device_id":"DID01","port_2":"1"}'];
+      // $posted_data = ['{"device_id":"DID01","port_2":"1"}'];
       $posted_data = Input::all();
       $posted_data= (array) json_decode($posted_data[0]);
       
@@ -370,7 +389,7 @@ class DeviceController extends BaseController {
 
           $port_no_key = array_keys($posted_data);
 
-          $port_no_key=$port_no_key[1];
+          $port_no_key = $port_no_key[1];
 
           $status_reason_col_name = $port_no_key.'_'.$posted_data[$port_no_key].'_reason';
 
@@ -442,6 +461,9 @@ class DeviceController extends BaseController {
     }
   }
 
+  /**
+  * Function to send email to assigned user and machine created email ids
+  */
   function sendMailToUsers($model) {
 
       config(['mail.username' => 'admsyslogyx@gmail.com',
@@ -462,6 +484,9 @@ class DeviceController extends BaseController {
       }
   }
 
+  /**
+  * Function to update device status data in machine status records
+  */
   function updateDeviceStatus($deviceData){
         try{
             DB::beginTransaction();

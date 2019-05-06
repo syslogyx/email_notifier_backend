@@ -30,9 +30,9 @@ class User_Machine_Assoc extends Model
     }
 
     public function machine() {
-      return $this->belongsTo('App\Machine' , 'machine_id');
+        return $this->belongsTo('App\Machine' , 'machine_id');
     }
     public function user() {
-      return $this->belongsTo('App\User' , 'user_id');
+        return $this->belongsTo('App\User' , 'user_id');
     }
 }
